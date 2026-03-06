@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { renderScene } from "./renderer";
+import type { Element } from "../scene/elements";
 
 function Canvas() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
-  const [elements, setElements] = useState([
+  const [elements, setElements] = useState<Element[]>([
     {
       id: "1",
       type: "rectangle",
@@ -22,6 +23,10 @@ function Canvas() {
       height: 90,
     },
   ]);
+
+  const [isDrawing, setIsDrawing] = useState(false);
+
+  const [startPos, setStartPos] = useState({ x: 0, y: 0 });
 
   // Initialize canvas context
   useEffect(() => {
@@ -42,9 +47,58 @@ function Canvas() {
     // ctx.lineWidth = 2;
   }, [elements]);
 
+  function handleMouseDown(e: React.MouseEvent<HTMLCanvasElement>) {
+    const rect = e.currentTarget.getBoundingClientRect();
+
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    setStartPos({ x, y });
+    setIsDrawing(true);
+
+    const newRect: Element = {
+      id: "v",
+      type: "rectangle",
+      x,
+      y,
+      width: 0,
+      height: 0,
+    };
+
+    setElements((prev) => [...prev, newRect]);
+  }
+
+  function handleMouseMove(e: React.MouseEvent<HTMLCanvasElement>) {
+    if (!isDrawing) return;
+
+    const rect = e.currentTarget.getBoundingClientRect();
+
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    setElements((prev) => {
+      const updated = [...prev];
+      const current = updated[updated.length - 1];
+
+      current.width = x - startPos.x;
+      current.height = y - startPos.y;
+
+      return updated;
+    });
+  }
+
+  function handleMouseUp() {
+    setIsDrawing(false);
+  }
+
   return (
     <>
-      <canvas ref={canvasRef} />
+      <canvas
+        ref={canvasRef}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+      />
     </>
   );
 }

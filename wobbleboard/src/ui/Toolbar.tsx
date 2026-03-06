@@ -1,6 +1,6 @@
 import { MousePointer, RectangleVertical } from "lucide-react";
 import type React from "react";
-import { rectangleTool, selectionTool, type Tool } from "../tools/toolTypes";
+import { TOOLS, type Tool } from "../tools/toolTypes";
 
 type ToolbarProps = {
   setTool: React.Dispatch<React.SetStateAction<Tool>>;
@@ -9,10 +9,10 @@ type ToolbarProps = {
 function Toolbar({ setTool }: ToolbarProps) {
   return (
     <div>
-      <button onClick={() => setTool(selectionTool)}>
+      <button onClick={() => setTool(TOOLS.selection)}>
         <MousePointer />
       </button>
-      <button onClick={() => setTool(rectangleTool)}>
+      <button onClick={() => setTool(TOOLS.rectangle)}>
         <RectangleVertical />
       </button>
     </div>

@@ -1,21 +1,6 @@
-export type SelectionTool = {
-    type: "selection",
-    cursor: 'default'
+export const TOOLS = {
+    selection: { type: 'selection', cursor: 'default' },
+    rectangle: { type: 'rectangle', cursor: 'crosshair' }
 };
 
-export const selectionTool : SelectionTool = {
-    type: 'selection',
-    cursor: 'default'
-}
-
-export type RectangleTool = {
-    type: 'rectangle',
-    cursor: 'crosshair'
-};
-
-export const rectangleTool : RectangleTool = {
-    type: 'rectangle',
-    cursor: 'crosshair'
-}
-
-export type Tool = SelectionTool | RectangleTool;
+export type Tool = typeof TOOLS[keyof typeof TOOLS];

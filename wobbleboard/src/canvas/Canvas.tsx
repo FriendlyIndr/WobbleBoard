@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { renderScene } from "./renderer";
 import type { Element } from "../scene/elements";
-import { rectangleTool, selectionTool, type Tool } from "../tools/toolTypes";
+import { TOOLS, type Tool } from "../tools/toolTypes";
 import Toolbar from "../ui/Toolbar";
 import { getElementAtPosition } from "../scene/hitTest";
 
@@ -27,7 +27,7 @@ function Canvas() {
     },
   ]);
 
-  const [tool, setTool] = useState<Tool>(selectionTool);
+  const [tool, setTool] = useState<Tool>(TOOLS.selection);
 
   const [isDrawing, setIsDrawing] = useState(false);
 
@@ -51,9 +51,6 @@ function Canvas() {
     canvas.height = window.innerHeight;
 
     renderScene(ctx, elements, canvas, selectedElementId);
-
-    // ctx.strokeStyle = "black";
-    // ctx.lineWidth = 2;
   }, [elements, selectedElementId]);
 
   function handleMouseDown(e: React.MouseEvent<HTMLCanvasElement>) {
@@ -62,7 +59,7 @@ function Canvas() {
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    if (tool === rectangleTool) {
+    if (tool === TOOLS.rectangle) {
       setStartPos({ x, y });
       setIsDrawing(true);
 
@@ -78,7 +75,7 @@ function Canvas() {
       setElements((prev) => [...prev, newRect]);
     }
 
-    if (tool === selectionTool) {
+    if (tool === TOOLS.selection) {
       const element = getElementAtPosition(x, y, elements);
 
       if (element) {

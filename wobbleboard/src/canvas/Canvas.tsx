@@ -87,22 +87,32 @@ function Canvas() {
   }
 
   function handleMouseMove(e: React.MouseEvent<HTMLCanvasElement>) {
-    if (!isDrawing) return;
-
     const rect = e.currentTarget.getBoundingClientRect();
 
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    setElements((prev) => {
-      const updated = [...prev];
-      const current = updated[updated.length - 1];
+    if (isDrawing) {
+      setElements((prev) => {
+        const updated = [...prev];
+        const current = updated[updated.length - 1];
 
-      current.width = x - startPos.x;
-      current.height = y - startPos.y;
+        current.width = x - startPos.x;
+        current.height = y - startPos.y;
 
-      return updated;
-    });
+        return updated;
+      });
+    } else {
+      if (tool === TOOLS.selection) {
+        const element = getElementAtPosition(x, y, elements);
+
+        if (element) {
+          canvasRef.current!.style.cursor = "move";
+        } else {
+          canvasRef.current!.style.cursor = tool.cursor;
+        }
+      }
+    }
   }
 
   function handleMouseUp() {

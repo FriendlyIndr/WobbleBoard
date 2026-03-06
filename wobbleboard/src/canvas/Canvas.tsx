@@ -1,7 +1,27 @@
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { renderScene } from "./renderer";
 
 function Canvas() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  const [elements, setElements] = useState([
+    {
+      id: "1",
+      type: "rectangle",
+      x: 100,
+      y: 100,
+      width: 200,
+      height: 120,
+    },
+    {
+      id: "2",
+      type: "rectangle",
+      x: 350,
+      y: 200,
+      width: 150,
+      height: 90,
+    },
+  ]);
 
   // Initialize canvas context
   useEffect(() => {
@@ -16,12 +36,11 @@ function Canvas() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    // Draw a rectangle
-    ctx.strokeStyle = "black";
-    ctx.lineWidth = 2;
+    renderScene(ctx, elements, canvas);
 
-    ctx.strokeRect(100, 100, 200, 200);
-  }, []);
+    // ctx.strokeStyle = "black";
+    // ctx.lineWidth = 2;
+  }, [elements]);
 
   return (
     <>

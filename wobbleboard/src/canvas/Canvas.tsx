@@ -1,6 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import { renderScene } from "./renderer";
 import type { Element } from "../scene/elements";
+import { rectangleTool, selectionTool, type Tool } from "../tools/toolTypes";
+import Toolbar from "../ui/Toolbar";
+import { getElementAtPosition } from "../scene/hitTest";
 
 function Canvas() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -24,9 +27,15 @@ function Canvas() {
     },
   ]);
 
+  const [tool, setTool] = useState<Tool>(selectionTool);
+
   const [isDrawing, setIsDrawing] = useState(false);
 
   const [startPos, setStartPos] = useState({ x: 0, y: 0 });
+
+  const [selectedElementId, setSelectedElementId] = useState<string | null>(
+    null,
+  );
 
   // Initialize canvas context
   useEffect(() => {
@@ -41,11 +50,11 @@ function Canvas() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    renderScene(ctx, elements, canvas);
+    renderScene(ctx, elements, canvas, selectedElementId);
 
     // ctx.strokeStyle = "black";
     // ctx.lineWidth = 2;
-  }, [elements]);
+  }, [elements, selectedElementId]);
 
   function handleMouseDown(e: React.MouseEvent<HTMLCanvasElement>) {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -53,19 +62,31 @@ function Canvas() {
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    setStartPos({ x, y });
-    setIsDrawing(true);
+    if (tool === rectangleTool) {
+      setStartPos({ x, y });
+      setIsDrawing(true);
 
-    const newRect: Element = {
-      id: "v",
-      type: "rectangle",
-      x,
-      y,
-      width: 0,
-      height: 0,
-    };
+      const newRect: Element = {
+        id: crypto.randomUUID(),
+        type: "rectangle",
+        x,
+        y,
+        width: 0,
+        height: 0,
+      };
 
-    setElements((prev) => [...prev, newRect]);
+      setElements((prev) => [...prev, newRect]);
+    }
+
+    if (tool === selectionTool) {
+      const element = getElementAtPosition(x, y, elements);
+
+      if (element) {
+        setSelectedElementId(element.id);
+      } else {
+        setSelectedElementId(null);
+      }
+    }
   }
 
   function handleMouseMove(e: React.MouseEvent<HTMLCanvasElement>) {
@@ -93,8 +114,10 @@ function Canvas() {
 
   return (
     <>
+      <Toolbar setTool={setTool} />
       <canvas
         ref={canvasRef}
+        style={{ cursor: tool.cursor }}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}

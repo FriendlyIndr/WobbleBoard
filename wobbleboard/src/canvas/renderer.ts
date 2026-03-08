@@ -30,14 +30,14 @@ function drawSelection(ctx: CanvasRenderingContext2D, element: Element) {
     ctx.strokeStyle = "blue";
     ctx.lineWidth = 1;
 
-    ctx.setLineDash([5, 5]);
+    const PADDING = 6;
 
     if (element.type === "rectangle") {
         ctx.strokeRect(
-            element.x,
-            element.y,
-            element.width,
-            element.height
+            element.x - PADDING,
+            element.y - PADDING,
+            element.width + PADDING * 2,
+            element.height + PADDING * 2
         );
     }
 

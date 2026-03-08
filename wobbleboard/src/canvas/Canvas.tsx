@@ -119,6 +119,10 @@ function Canvas() {
     setIsDrawing(false);
   }
 
+  useEffect(() => {
+    setSelectedElementId(null);
+  }, [tool]);
+
   return (
     <>
       <Toolbar setTool={setTool} />

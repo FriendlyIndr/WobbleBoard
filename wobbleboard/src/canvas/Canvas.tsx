@@ -117,6 +117,25 @@ function Canvas() {
       setElements((prev) => [...prev, newDiamond]);
     }
 
+    if (tool === TOOLS.ellipse) {
+      setInteraction({
+        type: "drawing",
+        start: { x, y },
+      });
+
+      const newEllipse: Element = {
+        id: crypto.randomUUID(),
+        type: "ellipse",
+        x,
+        y,
+        width: 0,
+        height: 0,
+        seed: Math.floor(Math.random() * 100000),
+      };
+
+      setElements((prev) => [...prev, newEllipse]);
+    }
+
     if (tool === TOOLS.selection) {
       const hit = hitTest(x, y, elements, selectedIds);
 

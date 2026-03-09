@@ -39,7 +39,24 @@ function drawSelection(ctx: CanvasRenderingContext2D, element: Element) {
             element.width + PADDING * 2,
             element.height + PADDING * 2
         );
+
+        drawHandle(ctx, element.x  - PADDING, element.y - PADDING);
+        drawHandle(ctx, element.x + element.width + PADDING, element.y - PADDING);
+        drawHandle(ctx, element.x + element.width + PADDING, element.y + element.height + PADDING);
+        drawHandle(ctx, element.x - PADDING, element.y + element.height + PADDING);
     }
 
     ctx.restore();
+}
+
+function drawHandle(ctx: CanvasRenderingContext2D, x: number, y: number) {
+    const SIZE = 6;
+
+    ctx.fillStyle = "white";
+    ctx.strokeStyle = "blue";
+
+    ctx.beginPath();
+    ctx.rect(x - SIZE / 2, y - SIZE / 2, SIZE, SIZE);
+    ctx.fill();
+    ctx.stroke();
 }

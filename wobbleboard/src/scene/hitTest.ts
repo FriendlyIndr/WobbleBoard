@@ -117,12 +117,21 @@ export function isPointInsideRectangle(
 export function hitTest(
     x: number,
     y: number,
-    elements: Element[]
+    elements: Element[],
+    selectedIds: Set<string>,
 ): HitResult {
     // Loop backwards
     for (let i = elements.length - 1; i >= 0; i--) {
         const element = elements[i];
         const shape = SHAPES[element.type];
+
+        const isSelected = selectedIds.has(element.id);
+
+        if (isSelected) {
+            if (isPointInsideRectangle(x, y, element)) {
+                return { type: "inside", element };
+            }
+        }
 
         const result = shape.hitTest(x, y, element);
 

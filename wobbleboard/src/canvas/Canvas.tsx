@@ -114,7 +114,7 @@ function Canvas() {
     }
 
     if (tool === TOOLS.selection) {
-      const hit = hitTest(x, y, elements);
+      const hit = hitTest(x, y, elements, selectedIds);
 
       if (hit.element) {
         const id = hit.element.id;
@@ -221,7 +221,7 @@ function Canvas() {
     }
 
     if (tool === TOOLS.selection) {
-      const hit = hitTest(x, y, elements);
+      const hit = hitTest(x, y, elements, selectedIds);
 
       if (hit.element) {
         switch (hit.type) {

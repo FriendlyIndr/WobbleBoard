@@ -16,10 +16,6 @@ export const rectangleShape: Shape = {
             return "border";
         }
 
-        if (isPointInsideRectangle(x, y, element)) {
-            return "inside";
-        }
-
         return "none";
     }
 };

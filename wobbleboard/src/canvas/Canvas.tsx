@@ -5,6 +5,16 @@ import { TOOLS, type Tool } from "../tools/toolTypes";
 import Toolbar from "../ui/Toolbar";
 import { hitTest } from "../scene/hitTest";
 
+type InteractionState =
+  | { type: "idle" }
+  | { type: "drawing"; start: { x: number; y: number } }
+  | { type: "dragging"; start: { x: number; y: number } }
+  | {
+      type: "marquee";
+      start: { x: number; y: number };
+      current: { x: number; y: number };
+    };
+
 function Canvas() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -29,22 +39,11 @@ function Canvas() {
 
   const [tool, setTool] = useState<Tool>(TOOLS.selection);
 
-  const [isDrawing, setIsDrawing] = useState(false);
-
-  const [startPos, setStartPos] = useState({ x: 0, y: 0 });
+  const [interaction, setInteraction] = useState<InteractionState>({
+    type: "idle",
+  });
 
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-
-  const [selectionBox, setSelectionBox] = useState<{
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-  } | null>(null); // marquee selection state
-
-  const [isDragging, setIsDragging] = useState(false);
-
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
 
   // Initialize canvas context
   useEffect(() => {
@@ -59,8 +58,18 @@ function Canvas() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
+    const selectionBox =
+      interaction.type === "marquee"
+        ? {
+            x: interaction.start.x,
+            y: interaction.start.y,
+            width: interaction.current.x - interaction.start.x,
+            height: interaction.current.y - interaction.start.y,
+          }
+        : null;
+
     renderScene(ctx, elements, canvas, selectedIds, selectionBox);
-  }, [elements, selectedIds, selectionBox]);
+  }, [elements, selectedIds, interaction]);
 
   function handleMouseDown(e: React.MouseEvent<HTMLCanvasElement>) {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -69,8 +78,10 @@ function Canvas() {
     const y = e.clientY - rect.top;
 
     if (tool === TOOLS.rectangle) {
-      setStartPos({ x, y });
-      setIsDrawing(true);
+      setInteraction({
+        type: "drawing",
+        start: { x, y },
+      });
 
       const newRect: Element = {
         id: crypto.randomUUID(),
@@ -85,8 +96,10 @@ function Canvas() {
     }
 
     if (tool === TOOLS.diamond) {
-      setStartPos({ x, y });
-      setIsDrawing(true);
+      setInteraction({
+        type: "drawing",
+        start: { x, y },
+      });
 
       const newDiamond: Element = {
         id: crypto.randomUUID(),
@@ -106,27 +119,23 @@ function Canvas() {
       if (hit.element) {
         const id = hit.element.id;
 
-        if (hit.type == "border") {
+        if (!selectedIds.has(id)) {
           setSelectedIds(new Set([id]));
         }
 
-        if (hit.type === "border" || selectedIds.has(id)) {
-          setIsDragging(true);
-
-          setDragOffset({
-            x: x - hit.element.x,
-            y: y - hit.element.y,
-          });
-        }
+        setInteraction({
+          type: "dragging",
+          start: { x, y },
+        });
       } else {
-        setSelectionBox({
-          x,
-          y,
-          width: 0,
-          height: 0,
+        setSelectedIds(new Set());
+
+        setInteraction({
+          type: "marquee",
+          start: { x, y },
+          current: { x, y },
         });
 
-        setSelectedIds(new Set());
         return;
       }
     }
@@ -138,52 +147,64 @@ function Canvas() {
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    if (isDragging && selectedIds.size) {
-      setElements((prev) => {
-        return prev.map((el) => {
-          if (!selectedIds.has(el.id)) return el;
+    switch (interaction.type) {
+      case "idle":
+        break;
 
-          return {
-            ...el,
-            x: x - dragOffset.x,
-            y: y - dragOffset.y,
+      case "drawing":
+        const { start } = interaction;
+
+        setElements((prev) => {
+          const updated = [...prev];
+          const current = updated[updated.length - 1];
+
+          updated[updated.length - 1] = {
+            ...current,
+            width: x - start.x,
+            height: y - start.y,
           };
+
+          return updated;
         });
-      });
 
-      return;
-    }
+        break;
 
-    if (isDrawing) {
-      setElements((prev) => {
-        const updated = [...prev];
-        const current = updated[updated.length - 1];
+      case "dragging":
+        const dx = x - interaction.start.x;
+        const dy = y - interaction.start.y;
 
-        updated[updated.length - 1] = {
-          ...current,
-          width: x - startPos.x,
-          height: y - startPos.y,
+        setElements((prev) => {
+          return prev.map((el) => {
+            if (!selectedIds.has(el.id)) return el;
+
+            return {
+              ...el,
+              x: el.x + dx,
+              y: el.y + dy,
+            };
+          });
+        });
+
+        setInteraction({
+          type: "dragging",
+          start: { x, y },
+        });
+
+        break;
+
+      case "marquee":
+        const next = {
+          ...interaction,
+          current: { x, y },
         };
 
-        return updated;
-      });
-
-      return;
-    }
-
-    if (tool === TOOLS.selection) {
-      if (selectionBox) {
-        setSelectionBox({
-          ...selectionBox,
-          width: x - selectionBox.x,
-          height: y - selectionBox.y,
-        });
+        setInteraction(next);
 
         const box = normalizeBox({
-          x: selectionBox.x,
-          y: selectionBox.y,
-          width: selectionBox.width,
-          height: selectionBox.height,
+          x: next.start.x,
+          y: next.start.y,
+          width: next.current.x - next.start.x,
+          height: next.current.y - next.start.y,
         });
 
         const newSelected = new Set<string>();
@@ -195,8 +216,11 @@ function Canvas() {
         });
 
         setSelectedIds(newSelected);
-      }
 
+        break;
+    }
+
+    if (tool === TOOLS.selection) {
       const hit = hitTest(x, y, elements);
 
       if (hit.element) {
@@ -223,9 +247,7 @@ function Canvas() {
   }
 
   function handleMouseUp() {
-    setIsDrawing(false);
-    setIsDragging(false);
-    setSelectionBox(null);
+    setInteraction({ type: "idle" });
   }
 
   function normalizeBox(box: {

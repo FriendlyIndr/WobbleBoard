@@ -214,7 +214,7 @@ function Canvas() {
         const newSelected = new Set<string>();
 
         elements.forEach((el) => {
-          if (intersects(box, el)) {
+          if (boxContainsElement(box, el)) {
             newSelected.add(el.id);
           }
         });
@@ -271,7 +271,7 @@ function Canvas() {
     };
   }
 
-  function intersects(
+  function boxContainsElement(
     box: {
       x: number;
       y: number;
@@ -280,11 +280,11 @@ function Canvas() {
     },
     element: Element,
   ) {
-    return !(
-      element.x > box.x + box.width ||
-      element.x + element.width < box.x ||
-      element.y > box.y + box.height ||
-      element.y + element.height < box.y
+    return (
+      element.x >= box.x &&
+      element.x + element.width <= box.x + box.width &&
+      element.y >= box.y &&
+      element.y + element.height <= box.y + box.height
     );
   }
 

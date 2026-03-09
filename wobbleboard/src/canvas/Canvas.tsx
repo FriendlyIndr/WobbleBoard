@@ -312,8 +312,12 @@ function Canvas() {
   }, [tool]);
 
   return (
-    <>
-      <Toolbar setTool={setTool} />
+    <div
+      style={{
+        position: "relative",
+      }}
+    >
+      <Toolbar tool={tool} setTool={setTool} />
       <canvas
         ref={canvasRef}
         style={{ cursor: tool.cursor }}
@@ -321,7 +325,7 @@ function Canvas() {
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
       />
-    </>
+    </div>
   );
 }
 

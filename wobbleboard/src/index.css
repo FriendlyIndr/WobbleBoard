@@ -20,3 +20,20 @@ body {
   min-width: 320px;
   min-height: 100vh;
 }
+
+.toolbar {
+  border-radius: 8px;
+  display: flex;
+  gap: 4px;
+}
+
+.toolbar button {
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 8px;
+}
+
+.toolbar button:hover {
+  background-color: #e6e6fa;
+}

@@ -30,7 +30,7 @@ body {
 .toolbar button {
   border: none;
   cursor: pointer;
-  padding: 4px;
+  padding: 8px;
   border-radius: 8px;
 }
 

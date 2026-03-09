@@ -12,6 +12,13 @@ type ToolbarProps = {
   setTool: React.Dispatch<React.SetStateAction<Tool>>;
 };
 
+const TOOLBAR_ITEMS = [
+  { tool: TOOLS.selection, icon: MousePointer },
+  { tool: TOOLS.rectangle, icon: RectangleVertical },
+  { tool: TOOLS.diamond, icon: Diamond },
+  { tool: TOOLS.ellipse, icon: Ellipse },
+];
+
 function Toolbar({ tool, setTool }: ToolbarProps) {
   const getStyle = (btnTool: Tool) => ({
     backgroundColor: tool.type === btnTool.type ? "#dcdcff" : "",
@@ -29,33 +36,15 @@ function Toolbar({ tool, setTool }: ToolbarProps) {
       }}
       className="toolbar"
     >
-      <button
-        onClick={() => setTool(TOOLS.selection)}
-        style={getStyle(TOOLS.selection)}
-      >
-        <MousePointer size={20} />
-      </button>
-
-      <button
-        onClick={() => setTool(TOOLS.rectangle)}
-        style={getStyle(TOOLS.rectangle)}
-      >
-        <RectangleVertical size={20} />
-      </button>
-
-      <button
-        onClick={() => setTool(TOOLS.diamond)}
-        style={getStyle(TOOLS.diamond)}
-      >
-        <Diamond size={20} />
-      </button>
-
-      <button
-        onClick={() => setTool(TOOLS.ellipse)}
-        style={getStyle(TOOLS.ellipse)}
-      >
-        <Ellipse size={20} />
-      </button>
+      {TOOLBAR_ITEMS.map(({ tool: itemTool, icon: Icon }) => (
+        <button
+          key={itemTool.type}
+          onClick={() => setTool(itemTool)}
+          style={getStyle(itemTool)}
+        >
+          <Icon size={18} />
+        </button>
+      ))}
     </div>
   );
 }

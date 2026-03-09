@@ -5,7 +5,13 @@ export function renderScene(
     ctx: CanvasRenderingContext2D, 
     elements: Element[], 
     canvas: HTMLCanvasElement, 
-    selectedElementId: string | null
+    selectedIds: Set<string>,
+    selectionBox: {
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+    } | null
 ) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -14,10 +20,24 @@ export function renderScene(
 
         shape.render(ctx, element);
 
-        if (element.id === selectedElementId) {
+        if (selectedIds.has(element.id)) {
             drawSelection(ctx, element);
         }
     });
+
+    if (selectionBox) {
+        ctx.save();
+        ctx.setLineDash([5, 5]);
+
+        ctx.strokeRect(
+            selectionBox.x,
+            selectionBox.y,
+            selectionBox.width,
+            selectionBox.height
+        );
+
+        ctx.restore();
+    }
 }
 
 function drawSelection(ctx: CanvasRenderingContext2D, element: Element) {

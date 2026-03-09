@@ -1,4 +1,4 @@
-import type { Element, RectangleElement } from "./elements";
+import type { Element } from "./elements";
 import { SHAPES } from "./shapes";
 
 export type HitType = 

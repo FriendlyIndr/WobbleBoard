@@ -3,7 +3,7 @@ import { renderScene } from "./renderer";
 import type { Element } from "../scene/elements";
 import { TOOLS, type Tool } from "../tools/toolTypes";
 import Toolbar from "../ui/Toolbar";
-import { hitTest, isPointInsideRectangle } from "../scene/hitTest";
+import { hitTest } from "../scene/hitTest";
 
 function Canvas() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -33,9 +33,14 @@ function Canvas() {
 
   const [startPos, setStartPos] = useState({ x: 0, y: 0 });
 
-  const [selectedElementId, setSelectedElementId] = useState<string | null>(
-    null,
-  );
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
+  const [selectionBox, setSelectionBox] = useState<{
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  } | null>(null); // marquee selection state
 
   const [isDragging, setIsDragging] = useState(false);
 
@@ -54,8 +59,8 @@ function Canvas() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    renderScene(ctx, elements, canvas, selectedElementId);
-  }, [elements, selectedElementId]);
+    renderScene(ctx, elements, canvas, selectedIds, selectionBox);
+  }, [elements, selectedIds, selectionBox]);
 
   function handleMouseDown(e: React.MouseEvent<HTMLCanvasElement>) {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -99,11 +104,13 @@ function Canvas() {
       const hit = hitTest(x, y, elements);
 
       if (hit.element) {
+        const id = hit.element.id;
+
         if (hit.type == "border") {
-          setSelectedElementId(hit.element.id);
+          setSelectedIds(new Set([id]));
         }
 
-        if (hit.type === "border" || hit.element.id === selectedElementId) {
+        if (hit.type === "border" || selectedIds.has(id)) {
           setIsDragging(true);
 
           setDragOffset({
@@ -112,7 +119,15 @@ function Canvas() {
           });
         }
       } else {
-        setSelectedElementId(null);
+        setSelectionBox({
+          x,
+          y,
+          width: 0,
+          height: 0,
+        });
+
+        setSelectedIds(new Set());
+        return;
       }
     }
   }
@@ -123,10 +138,10 @@ function Canvas() {
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    if (isDragging && selectedElementId) {
+    if (isDragging && selectedIds.size) {
       setElements((prev) => {
         return prev.map((el) => {
-          if (el.id !== selectedElementId) return el;
+          if (!selectedIds.has(el.id)) return el;
 
           return {
             ...el,
@@ -144,22 +159,54 @@ function Canvas() {
         const updated = [...prev];
         const current = updated[updated.length - 1];
 
-        current.width = x - startPos.x;
-        current.height = y - startPos.y;
+        updated[updated.length - 1] = {
+          ...current,
+          width: x - startPos.x,
+          height: y - startPos.y,
+        };
 
         return updated;
       });
-    } else {
-      if (tool === TOOLS.selection) {
-        const hit = hitTest(x, y, elements);
 
+      return;
+    }
+
+    if (tool === TOOLS.selection) {
+      if (selectionBox) {
+        setSelectionBox({
+          ...selectionBox,
+          width: x - selectionBox.x,
+          height: y - selectionBox.y,
+        });
+
+        const box = normalizeBox({
+          x: selectionBox.x,
+          y: selectionBox.y,
+          width: selectionBox.width,
+          height: selectionBox.height,
+        });
+
+        const newSelected = new Set<string>();
+
+        elements.forEach((el) => {
+          if (intersects(box, el)) {
+            newSelected.add(el.id);
+          }
+        });
+
+        setSelectedIds(newSelected);
+      }
+
+      const hit = hitTest(x, y, elements);
+
+      if (hit.element) {
         switch (hit.type) {
           case "border":
             canvasRef.current!.style.cursor = "move";
             break;
 
           case "inside":
-            if (hit.element?.id === selectedElementId) {
+            if (selectedIds.has(hit.element.id)) {
               canvasRef.current!.style.cursor = "move";
             } else {
               canvasRef.current!.style.cursor = "default";
@@ -169,6 +216,8 @@ function Canvas() {
           default:
             canvasRef.current!.style.cursor = tool.cursor;
         }
+      } else {
+        canvasRef.current!.style.cursor = tool.cursor;
       }
     }
   }
@@ -176,10 +225,45 @@ function Canvas() {
   function handleMouseUp() {
     setIsDrawing(false);
     setIsDragging(false);
+    setSelectionBox(null);
+  }
+
+  function normalizeBox(box: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  }) {
+    const x = box.width < 0 ? box.x + box.width : box.x;
+    const y = box.height < 0 ? box.y + box.height : box.y;
+
+    return {
+      x,
+      y,
+      width: Math.abs(box.width),
+      height: Math.abs(box.height),
+    };
+  }
+
+  function intersects(
+    box: {
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+    },
+    element: Element,
+  ) {
+    return !(
+      element.x > box.x + box.width ||
+      element.x + element.width < box.x ||
+      element.y > box.y + box.height ||
+      element.y + element.height < box.y
+    );
   }
 
   useEffect(() => {
-    setSelectedElementId(null);
+    setSelectedIds(new Set());
   }, [tool]);
 
   return (

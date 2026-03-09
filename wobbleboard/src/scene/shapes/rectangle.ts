@@ -1,13 +1,19 @@
-import { isPointInsideRectangle, isPointOnRectangleBorder } from "../hitTest";
+import { isPointOnRectangleBorder } from "../hitTest";
 import type { Shape } from "./types";
 
 export const rectangleShape: Shape = {
-    render(ctx, element) {
-        ctx.strokeRect(
+    render(rc, element) {
+        rc.rectangle(
             element.x,
             element.y,
             element.width,
-            element.height
+            element.height,
+            {
+                roughness: 1.5,
+                stroke: "black",
+                strokeWidth: 2,
+                seed: element.seed,
+            }
         );
     },
 

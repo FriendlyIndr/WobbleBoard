@@ -26,6 +26,7 @@ function Canvas() {
       y: 100,
       width: 200,
       height: 120,
+      seed: 3,
     },
     {
       id: "2",
@@ -34,6 +35,7 @@ function Canvas() {
       y: 200,
       width: 150,
       height: 90,
+      seed: 44,
     },
   ]);
 
@@ -90,6 +92,7 @@ function Canvas() {
         y,
         width: 0,
         height: 0,
+        seed: Math.floor(Math.random() * 100000),
       };
 
       setElements((prev) => [...prev, newRect]);
@@ -108,6 +111,7 @@ function Canvas() {
         y,
         width: 0,
         height: 0,
+        seed: Math.floor(Math.random() * 100000),
       };
 
       setElements((prev) => [...prev, newDiamond]);

@@ -1,20 +1,26 @@
-import { isPointInsideRectangle, isPointOnDiamondBorder } from "../hitTest";
+import { isPointOnDiamondBorder } from "../hitTest";
 import type { Shape } from "./types";
 
 export const diamondShape: Shape = {
-    render(ctx, element) {
+    render(rc, element) {
         const cx = element.x + element.width / 2;
         const cy = element.y + element.height / 2;
 
-        ctx.beginPath();
-
-        ctx.moveTo(cx, element.y); // top
-        ctx.lineTo(element.x + element.width, cy); // right
-        ctx.lineTo(cx, element.y + element.height); // bottom
-        ctx.lineTo(element.x, cy); // left
-
-        ctx.closePath();
-        ctx.stroke();
+        rc.polygon(
+            [
+                [cx, element.y], // top
+                [element.x + element.width, cy], // right
+                [cx, element.y + element.height], // bottom
+                [element.x, cy] // left
+            ],
+            {
+                roughness: 1.5,
+                stroke: "black",
+                strokeWidth: 2,
+                bowing: 1,
+                seed: element.seed,
+            }
+        );
     },
 
     hitTest(x, y, element) {

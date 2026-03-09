@@ -1,10 +1,11 @@
+import type { RoughCanvas } from "roughjs/bin/canvas";
 import type { Element } from "../elements";
 
 export type HitType = "none" | "inside" | "border";
 
 export type Shape = {
     render: (
-        ctx: CanvasRenderingContext2D,
+        rc: RoughCanvas,
         element: Element
     ) => void;
 

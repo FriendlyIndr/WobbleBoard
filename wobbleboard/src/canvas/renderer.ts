@@ -1,5 +1,6 @@
 import type { Element } from "../scene/elements";
 import { SHAPES } from "../scene/shapes";
+import rough from "roughjs";
 
 export function renderScene(
     ctx: CanvasRenderingContext2D, 
@@ -13,12 +14,14 @@ export function renderScene(
         height: number;
     } | null
 ) {
+    const rc = rough.canvas(canvas);
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     elements.forEach(element => {
         const shape = SHAPES[element.type];
 
-        shape.render(ctx, element);
+        shape.render(rc, element);
 
         if (selectedIds.has(element.id)) {
             drawSelection(ctx, element);

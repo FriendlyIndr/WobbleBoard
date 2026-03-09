@@ -5,6 +5,7 @@ export type RectangleElement = {
     y: number;
     width: number;
     height: number;
+    seed: number;
 };
 
 export type DiamondElement = {
@@ -14,6 +15,7 @@ export type DiamondElement = {
     y: number;
     width: number;
     height: number;
+    seed: number;
 };
 
 export type Element = RectangleElement | DiamondElement;

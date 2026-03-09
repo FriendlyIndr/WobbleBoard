@@ -3,7 +3,7 @@ import { renderScene } from "./renderer";
 import type { Element } from "../scene/elements";
 import { TOOLS, type Tool } from "../tools/toolTypes";
 import Toolbar from "../ui/Toolbar";
-import { getElementAtPosition, isPointInsideRectangle } from "../scene/hitTest";
+import { hitTest, isPointInsideRectangle } from "../scene/hitTest";
 
 function Canvas() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -80,14 +80,21 @@ function Canvas() {
     }
 
     if (tool === TOOLS.selection) {
-      const element = getElementAtPosition(x, y, elements);
+      const hit = hitTest(x, y, elements);
 
-      if (element) {
-        setSelectedElementId(element.id);
+      if (hit.element) {
+        if (hit.type == "border") {
+          setSelectedElementId(hit.element.id);
+        }
 
-        setIsDragging(true);
+        if (hit.type === "border" || hit.element.id === selectedElementId) {
+          setIsDragging(true);
 
-        setDragOffset({ x: x - element.x, y: y - element.y });
+          setDragOffset({
+            x: x - hit.element.x,
+            y: y - hit.element.y,
+          });
+        }
       } else {
         setSelectedElementId(null);
       }
@@ -128,27 +135,24 @@ function Canvas() {
       });
     } else {
       if (tool === TOOLS.selection) {
-        const element = getElementAtPosition(x, y, elements);
+        const hit = hitTest(x, y, elements);
 
-        let cursor = tool.cursor;
+        switch (hit.type) {
+          case "border":
+            canvasRef.current!.style.cursor = "move";
+            break;
 
-        // Border hover
-        if (element) {
-          cursor = "move";
-        }
-
-        // Inside selected element
-        if (selectedElementId) {
-          const selected = elements.find((el) => el.id === selectedElementId);
-
-          if (selected) {
-            if (isPointInsideRectangle(x, y, selected)) {
-              cursor = "move";
+          case "inside":
+            if (hit.element?.id === selectedElementId) {
+              canvasRef.current!.style.cursor = "move";
+            } else {
+              canvasRef.current!.style.cursor = "default";
             }
-          }
-        }
+            break;
 
-        canvasRef.current!.style.cursor = cursor;
+          default:
+            canvasRef.current!.style.cursor = tool.cursor;
+        }
       }
     }
   }

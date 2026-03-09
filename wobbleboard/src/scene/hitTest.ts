@@ -1,11 +1,23 @@
 import type { Element, RectangleElement } from "./elements";
 
+export type HitType = 
+    | "none"
+    | "inside"
+    | "border"
+    | "resize";
+
+export type HitResult = {
+    type: HitType;
+    element: Element | null;
+};
+
+
 export function isPointOnRectangleBorder(
     x: number,
     y: number,
     rect: RectangleElement
 ) {
-    const BORDER_THRESHOLD = 5;
+    const BORDER_THRESHOLD = 8;
 
     const left = rect.x;
     const right = rect.x + rect.width;
@@ -45,29 +57,26 @@ export function isPointInsideRectangle(
         x <= rect.x + rect.width &&
         y >= rect.y &&
         y <= rect.y + rect.height
-    )
+    );
 }
 
-// return (
-//         x >= rect.x &&
-//         x <= rect.x + rect.width &&
-//         y >= rect.y &&
-//         y <= rect.y + rect.height
-//     )
-
-export function getElementAtPosition(
+export function hitTest(
     x: number,
     y: number,
     elements: Element[]
-) {
+): HitResult {
     // Loop backwards
     for (let i = elements.length - 1; i >= 0; i--) {
         const element = elements[i];
 
-        if (isPointOnRectangleBorder(x, y, element) || isPointInsideRectangle(x, y, element)) {
-            return element;
+        if (isPointOnRectangleBorder(x, y, element)) {
+            return { type: "border", element };
+        }
+
+        if (isPointInsideRectangle(x, y, element)) {
+            return { type: "inside", element };
         }
     }
 
-    return null;
+    return { type: "none", element: null };
 }

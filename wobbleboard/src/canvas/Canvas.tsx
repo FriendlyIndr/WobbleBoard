@@ -3,7 +3,7 @@ import { renderScene } from "./renderer";
 import type { Element } from "../scene/elements";
 import { TOOLS, type Tool } from "../tools/toolTypes";
 import Toolbar from "../ui/Toolbar";
-import { getElementAtPosition } from "../scene/hitTest";
+import { getElementAtPosition, isPointInsideRectangle } from "../scene/hitTest";
 
 function Canvas() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -106,11 +106,25 @@ function Canvas() {
       if (tool === TOOLS.selection) {
         const element = getElementAtPosition(x, y, elements);
 
+        let cursor = tool.cursor;
+
+        // Border hover
         if (element) {
-          canvasRef.current!.style.cursor = "move";
-        } else {
-          canvasRef.current!.style.cursor = tool.cursor;
+          cursor = "move";
         }
+
+        // Inside selected element
+        if (selectedElementId) {
+          const selected = elements.find((el) => el.id === selectedElementId);
+
+          if (selected) {
+            if (isPointInsideRectangle(x, y, selected)) {
+              cursor = "move";
+            }
+          }
+        }
+
+        canvasRef.current!.style.cursor = cursor;
       }
     }
   }

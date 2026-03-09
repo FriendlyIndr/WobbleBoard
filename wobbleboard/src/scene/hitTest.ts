@@ -35,6 +35,19 @@ export function isPointOnRectangleBorder(
     return nearLeft || nearRight || nearTop || nearBottom;
 }
 
+export function isPointInsideRectangle(
+    x: number,
+    y: number,
+    rect: Element
+) {
+    return (
+        x >= rect.x &&
+        x <= rect.x + rect.width &&
+        y >= rect.y &&
+        y <= rect.y + rect.height
+    )
+}
+
 // return (
 //         x >= rect.x &&
 //         x <= rect.x + rect.width &&

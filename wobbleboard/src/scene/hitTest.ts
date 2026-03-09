@@ -64,7 +64,7 @@ export function getElementAtPosition(
     for (let i = elements.length - 1; i >= 0; i--) {
         const element = elements[i];
 
-        if (isPointOnRectangleBorder(x, y, element)) {
+        if (isPointOnRectangleBorder(x, y, element) || isPointInsideRectangle(x, y, element)) {
             return element;
         }
     }

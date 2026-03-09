@@ -37,6 +37,10 @@ function Canvas() {
     null,
   );
 
+  const [isDragging, setIsDragging] = useState(false);
+
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+
   // Initialize canvas context
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -80,6 +84,10 @@ function Canvas() {
 
       if (element) {
         setSelectedElementId(element.id);
+
+        setIsDragging(true);
+
+        setDragOffset({ x: x - element.x, y: y - element.y });
       } else {
         setSelectedElementId(null);
       }
@@ -91,6 +99,22 @@ function Canvas() {
 
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
+
+    if (isDragging && selectedElementId) {
+      setElements((prev) => {
+        return prev.map((el) => {
+          if (el.id !== selectedElementId) return el;
+
+          return {
+            ...el,
+            x: x - dragOffset.x,
+            y: y - dragOffset.y,
+          };
+        });
+      });
+
+      return;
+    }
 
     if (isDrawing) {
       setElements((prev) => {
@@ -131,6 +155,7 @@ function Canvas() {
 
   function handleMouseUp() {
     setIsDrawing(false);
+    setIsDragging(false);
   }
 
   useEffect(() => {

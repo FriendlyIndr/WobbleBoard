@@ -1,4 +1,5 @@
 import type { Element } from "../scene/elements";
+import { SHAPES } from "../scene/shapes";
 
 export function renderScene(
     ctx: CanvasRenderingContext2D, 
@@ -9,14 +10,9 @@ export function renderScene(
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     elements.forEach(element => {
-        if (element.type === 'rectangle') {
-            ctx.strokeRect(
-                element.x,
-                element.y,
-                element.width,
-                element.height
-            );
-        }
+        const shape = SHAPES[element.type];
+
+        shape.render(ctx, element);
 
         if (element.id === selectedElementId) {
             drawSelection(ctx, element);
@@ -32,21 +28,30 @@ function drawSelection(ctx: CanvasRenderingContext2D, element: Element) {
 
     const PADDING = 6;
 
-    if (element.type === "rectangle") {
-        ctx.strokeRect(
-            element.x - PADDING,
-            element.y - PADDING,
-            element.width + PADDING * 2,
-            element.height + PADDING * 2
-        );
+    const { x, y, width, height } = getElementBounds(element);
 
-        drawHandle(ctx, element.x  - PADDING, element.y - PADDING);
-        drawHandle(ctx, element.x + element.width + PADDING, element.y - PADDING);
-        drawHandle(ctx, element.x + element.width + PADDING, element.y + element.height + PADDING);
-        drawHandle(ctx, element.x - PADDING, element.y + element.height + PADDING);
-    }
+    ctx.strokeRect(
+        x - PADDING,
+        y - PADDING,
+        width + PADDING * 2,
+        height + PADDING * 2
+    );
+
+    drawHandle(ctx, x  - PADDING, y - PADDING);
+    drawHandle(ctx, x + width + PADDING, y - PADDING);
+    drawHandle(ctx, x + width + PADDING, y + height + PADDING);
+    drawHandle(ctx, x - PADDING, y + height + PADDING);
 
     ctx.restore();
+}
+
+function getElementBounds(element: Element) {
+    return {
+        x: element.x,
+        y: element.y,
+        width: element.width,
+        height: element.height,
+    };
 }
 
 function drawHandle(ctx: CanvasRenderingContext2D, x: number, y: number) {

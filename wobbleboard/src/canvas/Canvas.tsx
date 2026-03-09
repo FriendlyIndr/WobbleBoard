@@ -79,6 +79,22 @@ function Canvas() {
       setElements((prev) => [...prev, newRect]);
     }
 
+    if (tool === TOOLS.diamond) {
+      setStartPos({ x, y });
+      setIsDrawing(true);
+
+      const newDiamond: Element = {
+        id: crypto.randomUUID(),
+        type: "diamond",
+        x,
+        y,
+        width: 0,
+        height: 0,
+      };
+
+      setElements((prev) => [...prev, newDiamond]);
+    }
+
     if (tool === TOOLS.selection) {
       const hit = hitTest(x, y, elements);
 

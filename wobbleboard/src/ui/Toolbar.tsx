@@ -1,4 +1,4 @@
-import { MousePointer, RectangleVertical } from "lucide-react";
+import { MousePointer, RectangleVertical, Diamond } from "lucide-react";
 import type React from "react";
 import { TOOLS, type Tool } from "../tools/toolTypes";
 
@@ -12,8 +12,13 @@ function Toolbar({ setTool }: ToolbarProps) {
       <button onClick={() => setTool(TOOLS.selection)}>
         <MousePointer />
       </button>
+
       <button onClick={() => setTool(TOOLS.rectangle)}>
         <RectangleVertical />
+      </button>
+
+      <button onClick={() => setTool(TOOLS.diamond)}>
+        <Diamond />
       </button>
     </div>
   );

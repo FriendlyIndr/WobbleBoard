@@ -311,10 +311,26 @@ function Canvas() {
     setSelectedIds(new Set());
   }, [tool]);
 
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+
+    resize();
+    window.addEventListener("resize", resize);
+
+    return () => window.removeEventListener("resize", resize);
+  }, []);
+
   return (
     <div
       style={{
-        position: "relative",
+        position: "fixed",
+        inset: 0,
       }}
     >
       <Toolbar tool={tool} setTool={setTool} />

@@ -1,3 +1,4 @@
+import { normalizeElement } from "../normalizeElement";
 import type { Shape } from "./types";
 
 export const ellipseShape: Shape = {
@@ -26,11 +27,13 @@ export const ellipseShape: Shape = {
     },
 
     hitTest(x, y, element) {
-        const cx = element.x + element.width / 2;
-        const cy = element.y + element.height / 2;
+        const el = normalizeElement(element);
 
-        const rx = element.width / 2;
-        const ry = element.height / 2;
+        const rx = el.width / 2;
+        const ry = el.height / 2;
+
+        const cx = el.x + rx;
+        const cy = el.y + ry;
 
         const dx = (x - cx) / rx;
         const dy = (y - cy) / ry;

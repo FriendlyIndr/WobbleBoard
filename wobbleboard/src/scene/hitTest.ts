@@ -106,11 +106,16 @@ export function isPointInsideRectangle(
     y: number,
     rect: Element
 ) {
+    const left = Math.min(rect.x, rect.x + rect.width);
+    const right = Math.max(rect.x, rect.x + rect.width);
+    const top = Math.min(rect.y, rect.y + rect.height);
+    const bottom = Math.max(rect.y, rect.y + rect.height);
+
     return (
-        x >= rect.x &&
-        x <= rect.x + rect.width &&
-        y >= rect.y &&
-        y <= rect.y + rect.height
+        x >= left &&
+        x <= right &&
+        y >= top &&
+        y <= bottom
     );
 }
 

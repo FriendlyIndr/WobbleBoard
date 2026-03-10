@@ -1,4 +1,5 @@
 import type { Element } from "./elements";
+import { normalizeElement } from "./normalizeElement";
 import { SHAPES } from "./shapes";
 
 export type HitType = 
@@ -106,16 +107,13 @@ export function isPointInsideRectangle(
     y: number,
     rect: Element
 ) {
-    const left = Math.min(rect.x, rect.x + rect.width);
-    const right = Math.max(rect.x, rect.x + rect.width);
-    const top = Math.min(rect.y, rect.y + rect.height);
-    const bottom = Math.max(rect.y, rect.y + rect.height);
+    const el = normalizeElement(rect);
 
     return (
-        x >= left &&
-        x <= right &&
-        y >= top &&
-        y <= bottom
+        x >= el.x &&
+        x <= el.x + el.width &&
+        y >= el.y &&
+        y <= el.y + el.height
     );
 }
 

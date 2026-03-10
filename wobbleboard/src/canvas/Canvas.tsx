@@ -136,6 +136,25 @@ function Canvas() {
       setElements((prev) => [...prev, newEllipse]);
     }
 
+    if (tool === TOOLS.arrow) {
+      setInteraction({
+        type: "drawing",
+        start: { x, y },
+      });
+
+      const newArrow: Element = {
+        id: crypto.randomUUID(),
+        type: "arrow",
+        x,
+        y,
+        width: 0,
+        height: 0,
+        seed: Math.floor(Math.random() * 100000),
+      };
+
+      setElements((prev) => [...prev, newArrow]);
+    }
+
     if (tool === TOOLS.selection) {
       const hit = hitTest(x, y, elements, selectedIds);
 

@@ -28,4 +28,14 @@ export type EllipseElement = {
     seed: number;
 };
 
-export type Element = RectangleElement | DiamondElement | EllipseElement;
+export type ArrowElement = {
+    id: string;
+    type: "arrow",
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    seed: number;
+};
+
+export type Element = RectangleElement | DiamondElement | EllipseElement | ArrowElement;

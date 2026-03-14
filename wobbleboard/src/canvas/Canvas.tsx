@@ -79,6 +79,12 @@ function Canvas() {
     renderScene(ctx, elements, canvas, selectedIds, selectionBox);
   }, [elements, selectedIds, interaction]);
 
+  function isShapeType(
+    type: Tool["type"],
+  ): type is "rectangle" | "diamond" | "ellipse" | "arrow" {
+    return ["rectangle", "diamond", "ellipse", "arrow"].includes(type);
+  }
+
   function handleMouseDown(e: React.MouseEvent<HTMLCanvasElement>) {
     if (editingTextId) {
       setEditingTextId(null);
@@ -89,15 +95,15 @@ function Canvas() {
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    if (tool === TOOLS.rectangle) {
+    if (isShapeType(tool.type)) {
       setInteraction({
         type: "drawing",
         start: { x, y },
       });
 
-      const newRect: Element = {
+      const newShape: Element = {
         id: crypto.randomUUID(),
-        type: "rectangle",
+        type: tool.type,
         x,
         y,
         width: 0,
@@ -105,64 +111,7 @@ function Canvas() {
         seed: Math.floor(Math.random() * 100000),
       };
 
-      setElements((prev) => [...prev, newRect]);
-    }
-
-    if (tool === TOOLS.diamond) {
-      setInteraction({
-        type: "drawing",
-        start: { x, y },
-      });
-
-      const newDiamond: Element = {
-        id: crypto.randomUUID(),
-        type: "diamond",
-        x,
-        y,
-        width: 0,
-        height: 0,
-        seed: Math.floor(Math.random() * 100000),
-      };
-
-      setElements((prev) => [...prev, newDiamond]);
-    }
-
-    if (tool === TOOLS.ellipse) {
-      setInteraction({
-        type: "drawing",
-        start: { x, y },
-      });
-
-      const newEllipse: Element = {
-        id: crypto.randomUUID(),
-        type: "ellipse",
-        x,
-        y,
-        width: 0,
-        height: 0,
-        seed: Math.floor(Math.random() * 100000),
-      };
-
-      setElements((prev) => [...prev, newEllipse]);
-    }
-
-    if (tool === TOOLS.arrow) {
-      setInteraction({
-        type: "drawing",
-        start: { x, y },
-      });
-
-      const newArrow: Element = {
-        id: crypto.randomUUID(),
-        type: "arrow",
-        x,
-        y,
-        width: 0,
-        height: 0,
-        seed: Math.floor(Math.random() * 100000),
-      };
-
-      setElements((prev) => [...prev, newArrow]);
+      setElements((prev) => [...prev, newShape]);
     }
 
     if (tool === TOOLS.text) {

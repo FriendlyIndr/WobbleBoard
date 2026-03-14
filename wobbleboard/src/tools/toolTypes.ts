@@ -5,6 +5,6 @@ export const TOOLS = {
     ellipse: { type: 'ellipse', cursor: 'crosshair' },
     arrow: { type: 'arrow', cursor: 'crosshair' },
     text: { type: 'text', cursor: 'crosshair' },
-};
+} as const;
 
 export type Tool = typeof TOOLS[keyof typeof TOOLS];

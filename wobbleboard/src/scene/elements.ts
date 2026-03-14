@@ -1,41 +1,12 @@
-export type RectangleElement = {
+
+export type Element = {
     id: string;
-    type: "rectangle";
+    type: "rectangle" | "diamond" | "ellipse" | "arrow" | "text",
     x: number;
     y: number;
     width: number;
     height: number;
     seed: number;
-};
 
-export type DiamondElement = {
-    id: string;
-    type: "diamond";
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-    seed: number;
+    text?: string;
 };
-
-export type EllipseElement = {
-    id: string;
-    type: "ellipse";
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-    seed: number;
-};
-
-export type ArrowElement = {
-    id: string;
-    type: "arrow",
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-    seed: number;
-};
-
-export type Element = RectangleElement | DiamondElement | EllipseElement | ArrowElement;

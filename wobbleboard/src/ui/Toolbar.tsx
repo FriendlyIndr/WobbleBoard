@@ -4,6 +4,7 @@ import {
   Diamond,
   Ellipse,
   ArrowRight,
+  Type,
 } from "lucide-react";
 import type React from "react";
 import { TOOLS, type Tool } from "../tools/toolTypes";
@@ -19,6 +20,7 @@ const TOOLBAR_ITEMS = [
   { tool: TOOLS.diamond, icon: Diamond },
   { tool: TOOLS.ellipse, icon: Ellipse },
   { tool: TOOLS.arrow, icon: ArrowRight },
+  { tool: TOOLS.text, icon: Type },
 ];
 
 function Toolbar({ tool, setTool }: ToolbarProps) {

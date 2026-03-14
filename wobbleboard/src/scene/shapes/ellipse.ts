@@ -2,7 +2,7 @@ import { normalizeElement } from "../normalizeElement";
 import type { Shape } from "./types";
 
 export const ellipseShape: Shape = {
-    render(rc, element) {
+    render(rc, _ctx, element) {
         const x = Math.min(element.x, element.x + element.width);
         const y = Math.min(element.y, element.y + element.height);
 

@@ -2,7 +2,7 @@ import { isPointOnRectangleBorder } from "../hitTest";
 import type { Shape } from "./types";
 
 export const rectangleShape: Shape = {
-    render(rc, element) {
+    render(rc, _ctx, element) {
         const { x, y } = element;
 
         const width = Math.abs(element.width);

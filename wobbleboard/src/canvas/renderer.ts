@@ -21,7 +21,7 @@ export function renderScene(
     elements.forEach(element => {
         const shape = SHAPES[element.type];
 
-        shape.render(rc, element);
+        shape.render(rc, ctx, element);
 
         if (selectedIds.has(element.id)) {
             drawSelection(ctx, element);

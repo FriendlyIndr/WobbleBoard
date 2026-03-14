@@ -3,7 +3,7 @@ import { distanceToSegment } from "../hitTest";
 import type { Shape } from "./types";
 
 export const arrowShape: Shape = {
-    render(rc, element) {
+    render(rc, _ctx, element) {
         const x1 = element.x;
         const y1 = element.y;
 
@@ -51,7 +51,7 @@ function drawArrowhead(
     const leftY = y2 - size * Math.sin(angle - Math.PI / 6);
 
     const rightX = x2 - size * Math.cos(angle + Math.PI / 6);
-    const rightY = y2 - size * Math.cos(angle + Math.PI / 6);
+    const rightY = y2 - size * Math.sin(angle + Math.PI / 6);
 
     rc.line(x2, y2, leftX, leftY);
     rc.line(x2, y2, rightX, rightY);

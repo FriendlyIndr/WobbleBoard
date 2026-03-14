@@ -6,6 +6,7 @@ export type HitType = "none" | "inside" | "border";
 export type Shape = {
     render: (
         rc: RoughCanvas,
+        ctx: CanvasRenderingContext2D,
         element: Element
     ) => void;
 

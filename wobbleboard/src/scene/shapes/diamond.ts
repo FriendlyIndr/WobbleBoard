@@ -2,7 +2,7 @@ import { isPointOnDiamondBorder } from "../hitTest";
 import type { Shape } from "./types";
 
 export const diamondShape: Shape = {
-    render(rc, element) {
+    render(rc, _ctx, element) {
         const cx = element.x + element.width / 2;
         const cy = element.y + element.height / 2;
 

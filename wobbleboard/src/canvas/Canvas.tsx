@@ -47,6 +47,12 @@ function Canvas() {
 
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
+  const [editingTextId, setEditingTextId] = useState<string | null>(null);
+
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+
+  const editingTextElement = elements.find((e) => e.id === editingTextId);
+
   // Initialize canvas context
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -74,6 +80,10 @@ function Canvas() {
   }, [elements, selectedIds, interaction]);
 
   function handleMouseDown(e: React.MouseEvent<HTMLCanvasElement>) {
+    if (editingTextId) {
+      setEditingTextId(null);
+    }
+
     const rect = e.currentTarget.getBoundingClientRect();
 
     const x = e.clientX - rect.left;
@@ -153,6 +163,25 @@ function Canvas() {
       };
 
       setElements((prev) => [...prev, newArrow]);
+    }
+
+    if (tool === TOOLS.text) {
+      const newText: Element = {
+        id: crypto.randomUUID(),
+        type: "text",
+        x,
+        y,
+        width: 0,
+        height: 0,
+        seed: 0,
+        text: "",
+      };
+
+      setElements((prev) => [...prev, newText]);
+
+      setEditingTextId(newText.id);
+
+      setTool(TOOLS.selection); // switch back to select
     }
 
     if (tool === TOOLS.selection) {
@@ -345,6 +374,14 @@ function Canvas() {
     return () => window.removeEventListener("resize", resize);
   }, []);
 
+  useEffect(() => {
+    if (editingTextId && textareaRef.current) {
+      setTimeout(() => {
+        textareaRef.current?.focus();
+      }, 0);
+    }
+  }, [editingTextId]);
+
   return (
     <div
       style={{
@@ -360,6 +397,32 @@ function Canvas() {
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
       />
+
+      {editingTextElement && (
+        <textarea
+          ref={textareaRef}
+          autoFocus
+          style={{
+            position: "absolute",
+            left: editingTextElement.x,
+            top: editingTextElement.y,
+            font: "20px sans-serif",
+            border: "1px solid #aaa",
+            padding: "2px",
+            pointerEvents: "auto",
+          }}
+          value={editingTextElement?.text || ""}
+          onChange={(e) => {
+            const value = e.target.value;
+
+            setElements((prev) =>
+              prev.map((el) =>
+                el.id === editingTextId ? { ...el, text: value } : el,
+              ),
+            );
+          }}
+        />
+      )}
     </div>
   );
 }

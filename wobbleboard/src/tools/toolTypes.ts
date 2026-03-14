@@ -4,6 +4,7 @@ export const TOOLS = {
     diamond: { type: 'diamond', cursor: 'crosshair' },
     ellipse: { type: 'ellipse', cursor: 'crosshair' },
     arrow: { type: 'arrow', cursor: 'crosshair' },
+    text: { type: 'text', cursor: 'crosshair' },
 };
 
 export type Tool = typeof TOOLS[keyof typeof TOOLS];

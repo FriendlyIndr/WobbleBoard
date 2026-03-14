@@ -18,26 +18,10 @@ type InteractionState =
 function Canvas() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
-  const [elements, setElements] = useState<Element[]>([
-    {
-      id: "1",
-      type: "rectangle",
-      x: 100,
-      y: 100,
-      width: 200,
-      height: 120,
-      seed: 3,
-    },
-    {
-      id: "2",
-      type: "rectangle",
-      x: 350,
-      y: 200,
-      width: 150,
-      height: 90,
-      seed: 44,
-    },
-  ]);
+  const [elements, setElements] = useState<Element[]>(() => {
+    const saved = localStorage.getItem("scene");
+    return saved ? JSON.parse(saved) : [];
+  });
 
   const [tool, setTool] = useState<Tool>(TOOLS.selection);
 
@@ -78,6 +62,14 @@ function Canvas() {
 
     renderScene(ctx, elements, canvas, selectedIds, selectionBox);
   }, [elements, selectedIds, interaction]);
+
+  useEffect(() => {
+    const id = setTimeout(() => {
+      localStorage.setItem("scene", JSON.stringify(elements));
+    }, 300);
+
+    return () => clearTimeout(id);
+  }, [elements]);
 
   function isShapeType(
     type: Tool["type"],

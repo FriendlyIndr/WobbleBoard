@@ -9,6 +9,7 @@ type InteractionState =
   | { type: "idle" }
   | { type: "drawing"; start: { x: number; y: number } }
   | { type: "dragging"; start: { x: number; y: number } }
+  | { type: "erasing" }
   | {
       type: "marquee";
       start: { x: number; y: number };
@@ -31,6 +32,8 @@ function Canvas() {
 
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
+  const cursorPosRef = useRef<{ x: number; y: number } | null>(null);
+
   const [editingTextId, setEditingTextId] = useState<string | null>(null);
 
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -39,11 +42,11 @@ function Canvas() {
 
   // Initialize canvas context
   useEffect(() => {
-    const canvas = canvasRef.current;
+    const canvas = canvasRef.current!;
     if (!canvas) return;
 
     // Get 2d drawing context
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d")!;
     if (!ctx) return;
 
     // Set canvas size
@@ -60,7 +63,25 @@ function Canvas() {
           }
         : null;
 
-    renderScene(ctx, elements, canvas, selectedIds, selectionBox);
+    function render() {
+      renderScene(ctx, elements, canvas, selectedIds, selectionBox);
+
+      const cursor = cursorPosRef.current;
+
+      if (tool.type === "eraser" && cursor) {
+        const radius = 5.5;
+
+        ctx.beginPath();
+        ctx.arc(cursor.x, cursor.y, radius, 0, Math.PI * 2);
+        ctx.strokeStyle = "#000";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
+
+      requestAnimationFrame(render);
+    }
+
+    render();
   }, [elements, selectedIds, interaction]);
 
   useEffect(() => {
@@ -125,6 +146,16 @@ function Canvas() {
       setTool(TOOLS.selection); // switch back to select
     }
 
+    if (tool === TOOLS.eraser) {
+      setInteraction({ type: "erasing" });
+
+      const hit = hitTest(x, y, elements, selectedIds);
+
+      if (hit.element) {
+        setElements((prev) => prev.filter((el) => el.id !== hit.element?.id));
+      }
+    }
+
     if (tool === TOOLS.selection) {
       const hit = hitTest(x, y, elements, selectedIds);
 
@@ -158,6 +189,8 @@ function Canvas() {
 
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
+
+    cursorPosRef.current = { x, y };
 
     switch (interaction.type) {
       case "idle":
@@ -229,6 +262,9 @@ function Canvas() {
 
         setSelectedIds(newSelected);
 
+        break;
+
+      case "erasing":
         break;
     }
 
@@ -357,9 +393,28 @@ function Canvas() {
             const value = e.target.value;
 
             setElements((prev) =>
-              prev.map((el) =>
-                el.id === editingTextId ? { ...el, text: value } : el,
-              ),
+              prev.map((el) => {
+                if (el.id !== editingTextId) return el;
+
+                const canvas = document.createElement("canvas");
+                const ctx = canvas.getContext("2d")!;
+
+                ctx.font = "20px sans-serif";
+
+                const metrics = ctx.measureText(value);
+
+                const width = metrics?.width;
+                const height =
+                  metrics?.actualBoundingBoxAscent +
+                  metrics?.actualBoundingBoxDescent;
+
+                return {
+                  ...el,
+                  text: value,
+                  width,
+                  height,
+                };
+              }),
             );
           }}
         />

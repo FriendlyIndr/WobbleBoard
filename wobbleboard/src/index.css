@@ -18,17 +18,57 @@ body {
   display: flex;
 }
 
+.app_menu_top {
+  top: 16px;
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  display: grid;
+  grid-template-columns: 2fr 1fr 2fr;
+  align-items: center;
+}
+
+.app_menu_top__left {
+  position: relative;
+  color: black;
+  display: flex;
+  padding: 2px;
+}
+
+.app_menu_top__left button {
+  width: 32px;
+  height: 32px;
+  background-color: #eeeeee;
+  border-radius: 8px;
+  cursor: pointer;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.app_menu_top__left button:hover {
+  background-color: #e6e6fa;
+}
+
 .toolbar {
   border-radius: 8px;
   display: flex;
   gap: 4px;
+  margin-left: auto;
+  margin-right: auto;
+  background-color: white;
 }
 
 .toolbar button {
   border: none;
   cursor: pointer;
-  padding: 8px;
+  width: 32px;
+  height: 32px;
   border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .toolbar button:hover {

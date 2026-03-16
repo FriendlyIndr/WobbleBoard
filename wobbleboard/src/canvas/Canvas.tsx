@@ -4,6 +4,7 @@ import type { Element } from "../scene/elements";
 import { TOOLS, type Tool } from "../tools/toolTypes";
 import Toolbar from "../ui/Toolbar";
 import { hitTest } from "../scene/hitTest";
+import { Menu } from "lucide-react";
 
 type InteractionState =
   | { type: "idle" }
@@ -379,7 +380,15 @@ function Canvas() {
         inset: 0,
       }}
     >
-      <Toolbar tool={tool} setTool={setTool} />
+      <div className="app_menu_top">
+        <div className="app_menu_top__left">
+          <button>
+            <Menu size={16} />
+          </button>
+        </div>
+        <Toolbar tool={tool} setTool={setTool} />
+      </div>
+
       <canvas
         ref={canvasRef}
         style={{ cursor: tool.cursor }}

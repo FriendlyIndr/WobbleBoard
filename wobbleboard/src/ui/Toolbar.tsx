@@ -33,12 +33,8 @@ function Toolbar({ tool, setTool }: ToolbarProps) {
   return (
     <div
       style={{
-        position: "absolute",
-        left: "50%",
-        marginLeft: "-100px",
-        padding: "2px",
+        padding: "4px",
         boxShadow: "3px 3px 9px 2px #aaaaaa",
-        marginTop: "16px",
       }}
       className="toolbar"
     >
@@ -48,7 +44,7 @@ function Toolbar({ tool, setTool }: ToolbarProps) {
           onClick={() => setTool(itemTool)}
           style={getStyle(itemTool)}
         >
-          <Icon size={18} />
+          <Icon size={16} />
         </button>
       ))}
     </div>

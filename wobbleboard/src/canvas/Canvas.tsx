@@ -8,7 +8,11 @@ import { hitTest } from "../scene/hitTest";
 type InteractionState =
   | { type: "idle" }
   | { type: "drawing"; start: { x: number; y: number } }
-  | { type: "dragging"; start: { x: number; y: number } }
+  | {
+      type: "dragging";
+      cursorStart: { x: number; y: number };
+      intitialPositions: Map<string, { x: number; y: number }>;
+    }
   | { type: "erasing" }
   | {
       type: "marquee";
@@ -162,13 +166,26 @@ function Canvas() {
       if (hit.element) {
         const id = hit.element.id;
 
+        // Compute next selection synchronously
+        let nextSelected = selectedIds;
+
         if (!selectedIds.has(id)) {
-          setSelectedIds(new Set([id]));
+          nextSelected = new Set([id]);
+          setSelectedIds(nextSelected);
         }
+
+        const intitialPositions = new Map<string, { x: number; y: number }>();
+
+        elements.forEach((el) => {
+          if (nextSelected.has(el.id) || el.id === id) {
+            intitialPositions.set(el.id, { x: el.x, y: el.y });
+          }
+        });
 
         setInteraction({
           type: "dragging",
-          start: { x, y },
+          cursorStart: { x, y },
+          intitialPositions,
         });
       } else {
         setSelectedIds(new Set());
@@ -215,26 +232,22 @@ function Canvas() {
         break;
 
       case "dragging":
-        const dx = x - interaction.start.x;
-        const dy = y - interaction.start.y;
+        // Calculate deltas
+        const dx = x - interaction.cursorStart.x;
+        const dy = y - interaction.cursorStart.y;
 
         setElements((prev) => {
           return prev.map((el) => {
-            if (!selectedIds.has(el.id)) return el;
+            const startPos = interaction.intitialPositions.get(el.id);
+            if (!startPos) return el;
 
             return {
               ...el,
-              x: el.x + dx,
-              y: el.y + dy,
+              x: startPos.x + dx,
+              y: startPos.y + dy,
             };
           });
         });
-
-        setInteraction({
-          type: "dragging",
-          start: { x, y },
-        });
-
         break;
 
       case "marquee":

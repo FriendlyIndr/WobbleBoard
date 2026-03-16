@@ -17,7 +17,7 @@ export const arrowShape: Shape = {
             seed: element.seed,
         });
 
-        drawArrowhead(rc, x1, y1, x2, y2);
+        drawArrowhead(rc, x1, y1, x2, y2, element.seed);
     },
 
     hitTest(x, y, element) {
@@ -41,7 +41,8 @@ function drawArrowhead(
     x1: number, 
     y1: number, 
     x2: number, 
-    y2: number
+    y2: number,
+    seed: number,
 ) {
     const angle = Math.atan2(y2 - y1, x2 - x1);
 
@@ -53,6 +54,10 @@ function drawArrowhead(
     const rightX = x2 - size * Math.cos(angle + Math.PI / 6);
     const rightY = y2 - size * Math.sin(angle + Math.PI / 6);
 
-    rc.line(x2, y2, leftX, leftY);
-    rc.line(x2, y2, rightX, rightY);
+    rc.line(x2, y2, leftX, leftY, {
+        seed: seed,
+    });
+    rc.line(x2, y2, rightX, rightY, {
+        seed: seed,
+    });
 }

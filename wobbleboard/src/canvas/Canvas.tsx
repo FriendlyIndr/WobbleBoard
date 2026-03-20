@@ -6,6 +6,7 @@ import Toolbar from "../ui/Toolbar";
 import { Menu } from "lucide-react";
 import { useCanvasInteraction } from "./useCanvasInteraction";
 import { type InteractionState } from "../editor/interaction";
+import TextEditor from "../editor/TextEditor";
 
 function Canvas() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -151,47 +152,11 @@ function Canvas() {
       />
 
       {editingTextElement && (
-        <textarea
-          ref={textareaRef}
-          autoFocus
-          style={{
-            position: "absolute",
-            left: editingTextElement.x,
-            top: editingTextElement.y,
-            font: "20px sans-serif",
-            border: "1px solid #aaa",
-            padding: "2px",
-            pointerEvents: "auto",
-          }}
-          value={editingTextElement?.text || ""}
-          onChange={(e) => {
-            const value = e.target.value;
-
-            setElements((prev) =>
-              prev.map((el) => {
-                if (el.id !== editingTextId) return el;
-
-                const canvas = document.createElement("canvas");
-                const ctx = canvas.getContext("2d")!;
-
-                ctx.font = "20px sans-serif";
-
-                const metrics = ctx.measureText(value);
-
-                const width = metrics?.width;
-                const height =
-                  metrics?.actualBoundingBoxAscent +
-                  metrics?.actualBoundingBoxDescent;
-
-                return {
-                  ...el,
-                  text: value,
-                  width,
-                  height,
-                };
-              }),
-            );
-          }}
+        <TextEditor
+          textareaRef={textareaRef}
+          editingTextElement={editingTextElement}
+          setElements={setElements}
+          editingTextId={editingTextId}
         />
       )}
     </div>

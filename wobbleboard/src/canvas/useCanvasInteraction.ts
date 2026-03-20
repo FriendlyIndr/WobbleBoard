@@ -233,7 +233,10 @@ export function useCanvasInteraction({
               break;
   
             case "inside":
-              if (selectedIds.has(hit.element.id)) {
+              const isText = hit.element.type === "text";
+              const isSelected = selectedIds.has(hit.element.id);
+
+              if (isText || isSelected) {
                 canvasRef.current!.style.cursor = "move";
               } else {
                 canvasRef.current!.style.cursor = "default";

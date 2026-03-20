@@ -139,14 +139,14 @@ export function hitTest(
 
         const { x: ex, y: ey, width, height } = element;
 
-        if (isNear(x, y, ex, ey)) return { type: { type: "resize", handle: "tl" } , element };
-        if (isNear(x, y, ex + width, ey)) return { type: { type: "resize", handle: "tr" } , element };
-        if (isNear(x, y, ex + width, ey + height)) return { type: { type: "resize", handle: "br" } , element };
-        if (isNear(x, y, ex, ey + height)) return { type: { type: "resize", handle: "bl" } , element };
-
         const isSelected = selectedIds.has(element.id);
 
         if (isSelected) {
+            if (isNear(x, y, ex, ey)) return { type: { type: "resize", handle: "tl" } , element };
+            if (isNear(x, y, ex + width, ey)) return { type: { type: "resize", handle: "tr" } , element };
+            if (isNear(x, y, ex + width, ey + height)) return { type: { type: "resize", handle: "br" } , element };
+            if (isNear(x, y, ex, ey + height)) return { type: { type: "resize", handle: "bl" } , element };
+
             if (isPointInsideRectangle(x, y, element)) {
                 return { type: { type: "inside" }, element };
             }

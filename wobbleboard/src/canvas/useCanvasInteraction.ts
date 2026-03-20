@@ -4,7 +4,6 @@ import { TOOLS } from "../tools/toolTypes";
 import { hitTest } from "../scene/hitTest";
 import { type InteractionState } from "../editor/interaction";
 import type React from "react";
-import { renderScene } from "./renderer";
 
 type UseCanvasInteractionParams = {
     elements: Element[];
@@ -320,7 +319,7 @@ export function useCanvasInteraction({
               canvasRef.current!.style.cursor = "move";
               break;
   
-            case "inside":
+            case "inside": {
               const isText = hit.element.type === "text";
               const isSelected = selectedIds.has(hit.element.id);
 
@@ -330,8 +329,9 @@ export function useCanvasInteraction({
                 canvasRef.current!.style.cursor = "default";
               }
               break;
+            }
 
-            case "resize":
+            case "resize": {
               switch (hit.type.handle) {
                 case "br":
                 case "tl":
@@ -343,6 +343,7 @@ export function useCanvasInteraction({
                   break;
               }
               break;
+            }
   
             default:
               canvasRef.current!.style.cursor = tool.cursor;

@@ -16,13 +16,37 @@ function Canvas() {
     return saved ? JSON.parse(saved) : [];
   });
 
+  const elementsRef = useRef(elements);
+
+  useEffect(() => {
+    elementsRef.current = elements;
+  }, [elements]);
+
   const [tool, setTool] = useState<Tool>(TOOLS.selection);
+
+  const toolRef = useRef(tool);
+
+  useEffect(() => {
+    toolRef.current = tool;
+  }, [tool]);
 
   const [interaction, setInteraction] = useState<InteractionState>({
     type: "idle",
   });
 
+  const interactionRef = useRef(interaction);
+
+  useEffect(() => {
+    interactionRef.current = interaction;
+  }, [interaction]);
+
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
+  const selectedIdsRef = useRef(selectedIds);
+
+  useEffect(() => {
+    selectedIdsRef.current = selectedIds;
+  }, [selectedIds]);
 
   const cursorPosRef = useRef<{ x: number; y: number } | null>(null);
 
@@ -34,11 +58,11 @@ function Canvas() {
 
   useCanvasRenderer({
     canvasRef,
-    interaction,
-    elements,
-    selectedIds,
     cursorPosRef,
-    tool,
+    elementsRef,
+    interactionRef,
+    selectedIdsRef,
+    toolRef,
   });
 
   useEffect(() => {
@@ -63,6 +87,7 @@ function Canvas() {
       setEditingTextId,
       cursorPosRef,
       canvasRef,
+      elementsRef,
     });
 
   useEffect(() => {

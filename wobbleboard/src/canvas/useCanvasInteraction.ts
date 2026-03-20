@@ -4,6 +4,7 @@ import { TOOLS } from "../tools/toolTypes";
 import { hitTest } from "../scene/hitTest";
 import { type InteractionState } from "../editor/interaction";
 import type React from "react";
+import { renderScene } from "./renderer";
 
 type UseCanvasInteractionParams = {
     elements: Element[];
@@ -24,6 +25,8 @@ type UseCanvasInteractionParams = {
     cursorPosRef: React.RefObject<{ x: number; y: number } | null>;
 
     canvasRef: React.RefObject<HTMLCanvasElement | null>;
+
+    elementsRef: React.RefObject<Element[]>;
 };
 
 export function useCanvasInteraction({
@@ -39,6 +42,7 @@ export function useCanvasInteraction({
     setEditingTextId,
     cursorPosRef,
     canvasRef,
+    elementsRef,
 }: UseCanvasInteractionParams) {
     function handleMouseDown(e: React.MouseEvent<HTMLCanvasElement>) {
       if (editingTextId) {
@@ -178,19 +182,17 @@ export function useCanvasInteraction({
   
         case "drawing": {
           const { start } = interaction;
+
+          const updated = [...elementsRef.current];
+          const current = updated[updated.length - 1];
+
+          updated[updated.length - 1] = {
+            ...current,
+            width: x - start.x,
+            height: y - start.y,
+          };
   
-          setElements((prev) => {
-            const updated = [...prev];
-            const current = updated[updated.length - 1];
-  
-            updated[updated.length - 1] = {
-              ...current,
-              width: x - start.x,
-              height: y - start.y,
-            };
-  
-            return updated;
-          });
+          elementsRef.current = updated;
   
           break;
         }
@@ -200,18 +202,19 @@ export function useCanvasInteraction({
           const dx = x - interaction.cursorStart.x;
           const dy = y - interaction.cursorStart.y;
   
-          setElements((prev) => {
-            return prev.map((el) => {
-              const startPos = interaction.intitialPositions.get(el.id);
-              if (!startPos) return el;
-  
-              return {
-                ...el,
-                x: startPos.x + dx,
-                y: startPos.y + dy,
-              };
-            });
+          const updated = elementsRef.current.map((el) => {
+            const startPos = interaction.intitialPositions.get(el.id);
+            if (!startPos) return el;
+
+            return {
+              ...el,
+              x: startPos.x + dx,
+              y: startPos.y + dy,
+            };
           });
+
+          elementsRef.current = updated;
+
           break;
         }
   
@@ -251,58 +254,58 @@ export function useCanvasInteraction({
           const dx = x - interaction.cursorStart.x;
           const dy = y - interaction.cursorStart.y;
 
-          setElements((prev) =>
-            prev.map((el) => {
-              if (!selectedIds.has(el.id)) return el;
+          const updated = elementsRef.current.map((el) => {
+            if (!selectedIds.has(el.id)) return el;
 
-              let { x: ex, y: ey, width, height } = interaction.startBounds;
+            let { x: ex, y: ey, width, height } = interaction.startBounds;
 
-              switch (interaction.handle) {
-                case "br":
-                  width = width + dx;
-                  height = height + dy;
-                  break;
+            switch (interaction.handle) {
+              case "br":
+                width = width + dx;
+                height = height + dy;
+                break;
 
-                case "tr":
-                  width = width + dx;
-                  height = height - dy;
-                  ey = ey + dy;
-                  break;
-                
-                case "tl":
-                  width = width - dx;
-                  height = height - dy;
-                  ex = ex + dx;
-                  ey = ey + dy;
-                  break;
+              case "tr":
+                width = width + dx;
+                height = height - dy;
+                ey = ey + dy;
+                break;
+              
+              case "tl":
+                width = width - dx;
+                height = height - dy;
+                ex = ex + dx;
+                ey = ey + dy;
+                break;
 
-                case "bl":
-                  width = width - dx;
-                  height = height + dy;
-                  ex = ex + dx;
-                  break;
-              }
+              case "bl":
+                width = width - dx;
+                height = height + dy;
+                ex = ex + dx;
+                break;
+            }
 
-              // Normalize 
-              if (width < 0) {
-                ex = ex + width;
-                width = Math.abs(width);
-              }
+            // Normalize 
+            if (width < 0) {
+              ex = ex + width;
+              width = Math.abs(width);
+            }
 
-              if (height < 0) {
-                ey = ey + height;
-                height = Math.abs(height);
-              }
+            if (height < 0) {
+              ey = ey + height;
+              height = Math.abs(height);
+            }
 
-              return {
-                ...el,
-                x: ex,
-                y: ey,
-                width,
-                height
-              };
-            })
-          )
+            return {
+              ...el,
+              x: ex,
+              y: ey,
+              width,
+              height
+            };
+          });
+
+          elementsRef.current = updated;
 
           break;
         }
@@ -351,6 +354,7 @@ export function useCanvasInteraction({
     }
 
     function handleMouseUp() {
+      setElements(elementsRef.current); // sync to react
       setInteraction({ type: "idle" });
     }
 

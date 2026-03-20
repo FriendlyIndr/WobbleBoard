@@ -3,10 +3,10 @@ import { normalizeElement } from "./normalizeElement";
 import { SHAPES } from "./shapes";
 
 export type HitType = 
-    | "none"
-    | "inside"
-    | "border"
-    | "resize";
+    | { type: "none" }
+    | { type: "inside" }
+    | { type: "border" }
+    | { type: "resize"; handle: "tl" | "tr" | "br" | "bl" };
 
 export type HitResult = {
     type: HitType;
@@ -117,6 +117,15 @@ export function isPointInsideRectangle(
     );
 }
 
+const HANDLE_SIZE = 6;
+
+function isNear(x: number, y: number, hx: number, hy: number) {
+    return (
+        Math.abs(x - hx) <= HANDLE_SIZE &&
+        Math.abs(y - hy) <= HANDLE_SIZE
+    );
+}
+
 export function hitTest(
     x: number,
     y: number,
@@ -128,20 +137,27 @@ export function hitTest(
         const element = elements[i];
         const shape = SHAPES[element.type];
 
+        const { x: ex, y: ey, width, height } = element;
+
+        if (isNear(x, y, ex, ey)) return { type: { type: "resize", handle: "tl" } , element };
+        if (isNear(x, y, ex + width, ey)) return { type: { type: "resize", handle: "tr" } , element };
+        if (isNear(x, y, ex + width, ey + height)) return { type: { type: "resize", handle: "br" } , element };
+        if (isNear(x, y, ex, ey + height)) return { type: { type: "resize", handle: "bl" } , element };
+
         const isSelected = selectedIds.has(element.id);
 
         if (isSelected) {
             if (isPointInsideRectangle(x, y, element)) {
-                return { type: "inside", element };
+                return { type: { type: "inside" }, element };
             }
         }
 
         const result = shape.hitTest(x, y, element);
 
         if (result !== "none") {
-            return { type: result, element };
+            return { type: { type: result }, element };
         }
     }
 
-    return { type: "none", element: null };
+    return { type: { type: "none" }, element: null };
 }

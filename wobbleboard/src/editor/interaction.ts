@@ -11,4 +11,10 @@ export type InteractionState =
       type: "marquee";
       start: { x: number; y: number };
       current: { x: number; y: number };
-    };
+    }
+  | {
+      type: "resizing";
+      handle: "tl" | "tr" | "br" | "bl";
+      startBounds: { x: number; y: number; width: number; height: number };
+      cursorStart: { x: number; y: number };
+    }

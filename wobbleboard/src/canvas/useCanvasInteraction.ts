@@ -106,6 +106,26 @@ export function useCanvasInteraction({
         const hit = hitTest(x, y, elements, selectedIds);
   
         if (hit.element) {
+          if (hit.type.type === "resize") {
+            const handle = hit.type.handle; // "tl", "tr", etc
+
+            if (handle) {
+              setInteraction({
+                type: "resizing",
+                handle,
+                cursorStart: {x, y},
+                startBounds: {
+                  x: hit.element.x,
+                  y: hit.element.y,
+                  width: hit.element.width,
+                  height: hit.element.height,
+                }
+              });
+
+              return;
+            }
+          }
+
           const id = hit.element.id;
   
           // Compute next selection synchronously
@@ -152,10 +172,11 @@ export function useCanvasInteraction({
       cursorPosRef.current = { x, y };
   
       switch (interaction.type) {
-        case "idle":
+        case "idle": {
           break;
+        }
   
-        case "drawing":
+        case "drawing": {
           const { start } = interaction;
   
           setElements((prev) => {
@@ -172,8 +193,9 @@ export function useCanvasInteraction({
           });
   
           break;
+        }
   
-        case "dragging":
+        case "dragging": {
           // Calculate deltas
           const dx = x - interaction.cursorStart.x;
           const dy = y - interaction.cursorStart.y;
@@ -191,8 +213,9 @@ export function useCanvasInteraction({
             });
           });
           break;
+        }
   
-        case "marquee":
+        case "marquee": {
           const next = {
             ...interaction,
             current: { x, y },
@@ -218,16 +241,78 @@ export function useCanvasInteraction({
           setSelectedIds(newSelected);
   
           break;
+        }
   
-        case "erasing":
+        case "erasing": {
           break;
+        }
+
+        case "resizing": {
+          const dx = x - interaction.cursorStart.x;
+          const dy = y - interaction.cursorStart.y;
+
+          setElements((prev) =>
+            prev.map((el) => {
+              if (!selectedIds.has(el.id)) return el;
+
+              let { x: ex, y: ey, width, height } = interaction.startBounds;
+
+              switch (interaction.handle) {
+                case "br":
+                  width = width + dx;
+                  height = height + dy;
+                  break;
+
+                case "tr":
+                  width = width + dx;
+                  height = height - dy;
+                  ey = ey + dy;
+                  break;
+                
+                case "tl":
+                  width = width - dx;
+                  height = height - dy;
+                  ex = ex + dx;
+                  ey = ey + dy;
+                  break;
+
+                case "bl":
+                  width = width - dx;
+                  height = height + dy;
+                  ex = ex + dx;
+                  break;
+              }
+
+              // Normalize 
+              if (width < 0) {
+                ex = ex + width;
+                width = Math.abs(width);
+              }
+
+              if (height < 0) {
+                ey = ey + height;
+                height = Math.abs(height);
+              }
+
+              return {
+                ...el,
+                x: ex,
+                y: ey,
+                width,
+                height
+              };
+            })
+          )
+
+          break;
+        }
       }
   
       if (tool === TOOLS.selection) {
         const hit = hitTest(x, y, elements, selectedIds);
   
         if (hit.element) {
-          switch (hit.type) {
+          switch (hit.type.type) {
             case "border":
               canvasRef.current!.style.cursor = "move";
               break;
@@ -240,6 +325,19 @@ export function useCanvasInteraction({
                 canvasRef.current!.style.cursor = "move";
               } else {
                 canvasRef.current!.style.cursor = "default";
+              }
+              break;
+
+            case "resize":
+              switch (hit.type.handle) {
+                case "br":
+                case "tl":
+                  canvasRef.current!.style.cursor = "nwse-resize";
+                  break;
+                case "bl":
+                case "tr":
+                  canvasRef.current!.style.cursor = "nesw-resize";
+                  break;
               }
               break;
   

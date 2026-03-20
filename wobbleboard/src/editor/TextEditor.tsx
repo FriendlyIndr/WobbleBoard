@@ -48,6 +48,9 @@ const TextEditor = ({
             const LINE_HEIGHT = 24; // ~1.2 * font size
             const PADDING = 4;
 
+            const MIN_WIDTH = 20;
+            const MIN_HEIGHT = 24;
+
             ctx.font = FONT;
 
             const lines = value.split("\n");
@@ -64,8 +67,8 @@ const TextEditor = ({
             return {
               ...el,
               text: value,
-              width: maxWidth + PADDING,
-              height: totalHeight + PADDING,
+              width: Math.max(maxWidth + PADDING, MIN_WIDTH),
+              height: Math.max(totalHeight + PADDING, MIN_HEIGHT),
             };
           }),
         );

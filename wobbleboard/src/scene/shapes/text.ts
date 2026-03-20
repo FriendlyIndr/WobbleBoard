@@ -20,12 +20,6 @@ export const textShape: Shape = {
     },
 
     hitTest(x, y, element) {
-        if (!element.text) return "none";
-
-        if (isPointInsideRectangle(x, y, element)) {
-            return "inside";
-        }
-
-        return "none";
+        return isPointInsideRectangle(x, y, element) ? "inside" : "none";
     }
 };

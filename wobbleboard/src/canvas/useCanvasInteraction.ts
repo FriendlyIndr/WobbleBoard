@@ -3,6 +3,7 @@ import type { Tool } from "../tools/toolTypes";
 import { TOOLS } from "../tools/toolTypes";
 import { hitTest } from "../scene/hitTest";
 import { type InteractionState } from "../editor/interaction";
+import type React from "react";
 
 type UseCanvasInteractionParams = {
     elements: Element[];
@@ -41,7 +42,11 @@ export function useCanvasInteraction({
 }: UseCanvasInteractionParams) {
     function handleMouseDown(e: React.MouseEvent<HTMLCanvasElement>) {
       if (editingTextId) {
-        setEditingTextId(null);
+        finishTextEditing({
+          editingTextId,
+          setEditingTextId,
+          setElements
+        });
       }
   
       const rect = e.currentTarget.getBoundingClientRect();
@@ -293,4 +298,26 @@ function boxContainsElement(
     element.y >= box.y &&
     element.y + element.height <= box.y + box.height
   );
+}
+
+function finishTextEditing({
+  editingTextId,
+  setEditingTextId,
+  setElements,
+}: {
+  editingTextId: string | null;
+  setEditingTextId: React.Dispatch<React.SetStateAction<string | null>>;
+  setElements: React.Dispatch<React.SetStateAction<Element[]>>;
+}) {
+  if (!editingTextId) return;
+
+  setElements((prev) =>
+    prev.filter((el) => {
+      if (el.id !== editingTextId) return true;
+
+      return el.text && el.text.trim().length > 0;
+    })
+  );
+
+  setEditingTextId(null);
 }

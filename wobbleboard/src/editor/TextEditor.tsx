@@ -20,11 +20,19 @@ const TextEditor = ({
         position: "absolute",
         left: editingTextElement.x,
         top: editingTextElement.y,
-        font: "20px sans-serif",
-        border: "1px solid #aaa",
-        padding: "2px",
+        font: "20px Arial",
+        lineHeight: "24px",
+        background: "transparent",
+        border: "none",
+        outline: "none",
+        resize: "none",
+        padding: "0px",
         pointerEvents: "auto",
+
+        width: Math.max(editingTextElement.width || 0, 50),
+        height: Math.max(editingTextElement.height || 0, 24),
       }}
+      wrap="off"
       value={editingTextElement?.text || ""}
       onChange={(e) => {
         const value = e.target.value;
@@ -36,20 +44,28 @@ const TextEditor = ({
             const canvas = document.createElement("canvas");
             const ctx = canvas.getContext("2d")!;
 
-            ctx.font = "20px sans-serif";
+            const FONT = "20px Arial";
+            const LINE_HEIGHT = 24; // ~1.2 * font size
+            const PADDING = 4;
 
-            const metrics = ctx.measureText(value);
+            ctx.font = FONT;
 
-            const width = metrics?.width;
-            const height =
-              metrics?.actualBoundingBoxAscent +
-              metrics?.actualBoundingBoxDescent;
+            const lines = value.split("\n");
+
+            let maxWidth = 0;
+
+            lines.forEach((line) => {
+              const metrics = ctx!.measureText(line);
+              maxWidth = Math.max(metrics.width, maxWidth);
+            });
+
+            const totalHeight = lines.length * LINE_HEIGHT;
 
             return {
               ...el,
               text: value,
-              width,
-              height,
+              width: maxWidth + PADDING,
+              height: totalHeight + PADDING,
             };
           }),
         );

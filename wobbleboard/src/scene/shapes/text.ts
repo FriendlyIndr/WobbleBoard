@@ -5,11 +5,18 @@ export const textShape: Shape = {
     render(_rc, ctx, element) {
         if (!element.text) return;
 
-        ctx.font = "20px sans-serif";
+        const LINE_HEIGHT = 24;
+        const BASELINE_OFFSET = 4;
+
+        ctx.font = "20px Arial";
         ctx.fillStyle = "black";
         ctx.textBaseline = "top";
 
-        ctx.fillText(element.text, element.x, element.y);
+        const lines = element.text.split("\n");
+
+        lines.forEach((line, index) => {
+            ctx.fillText(line, element.x, element.y + BASELINE_OFFSET + index * LINE_HEIGHT)
+        });
     },
 
     hitTest(x, y, element) {

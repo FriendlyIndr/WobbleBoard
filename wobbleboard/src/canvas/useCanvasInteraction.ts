@@ -253,10 +253,26 @@ export function useCanvasInteraction({
       setInteraction({ type: "idle" });
     }
 
+    function handleDouleClick(e: React.MouseEvent<HTMLCanvasElement>) {
+      const rect = e.currentTarget.getBoundingClientRect();
+
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      const hit = hitTest(x, y, elements, selectedIds);
+
+      if (hit.element && hit.element.type === "text") {
+        setEditingTextId(hit.element.id);
+
+        setSelectedIds(new Set());
+      }
+    }
+
     return {
         handleMouseDown,
         handleMouseMove,
         handleMouseUp,
+        handleDouleClick,
     };
 }
 

@@ -49,7 +49,7 @@ function Canvas() {
     return () => clearTimeout(id);
   }, [elements]);
 
-  const { handleMouseDown, handleMouseMove, handleMouseUp } =
+  const { handleMouseDown, handleMouseMove, handleMouseUp, handleDouleClick } =
     useCanvasInteraction({
       elements,
       setElements,
@@ -114,6 +114,7 @@ function Canvas() {
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
+        onDoubleClick={handleDouleClick}
       />
 
       {editingTextElement && (

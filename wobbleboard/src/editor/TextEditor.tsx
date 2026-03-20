@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import type { Element } from "../scene/elements";
 
 const TextEditor = ({
@@ -12,6 +12,14 @@ const TextEditor = ({
   setElements: React.Dispatch<React.SetStateAction<Element[]>>;
   editingTextId: string | null;
 }) => {
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.focus();
+
+      textareaRef.current.select();
+    }
+  }, []);
+
   return (
     <textarea
       ref={textareaRef}

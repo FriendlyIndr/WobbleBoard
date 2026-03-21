@@ -141,7 +141,7 @@ export function hitTest(
 
         const isSelected = selectedIds.has(element.id);
 
-        if (isSelected) {
+        if (isSelected && element.type !== "arrow") {
             if (isNear(x, y, ex, ey)) return { type: { type: "resize", handle: "tl" } , element };
             if (isNear(x, y, ex + width, ey)) return { type: { type: "resize", handle: "tr" } , element };
             if (isNear(x, y, ex + width, ey + height)) return { type: { type: "resize", handle: "br" } , element };

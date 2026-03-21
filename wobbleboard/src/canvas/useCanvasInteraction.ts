@@ -257,6 +257,11 @@ export function useCanvasInteraction({
           const updated = elementsRef.current.map((el) => {
             if (!selectedIds.has(el.id)) return el;
 
+            // Handle arrow first
+            if (el.type === "arrow") {
+              return resizeArrow(el, interaction, dx, dy);
+            }
+
             let { x: ex, y: ey, width, height } = interaction.startBounds;
 
             switch (interaction.handle) {
@@ -443,4 +448,43 @@ function finishTextEditing({
   );
 
   setEditingTextId(null);
+}
+
+function resizeArrow(
+  el: Element,
+  interaction: any,
+  dx: number,
+  dy: number
+): Element {
+  let x1 = interaction.startBounds.x;
+  let y1 = interaction.startBounds.y;
+  let x2 = x1 + interaction.startBounds.width;
+  let y2 = y1 + interaction.startBounds.height;
+
+  switch (interaction.handle) {
+    case "start":
+      x1 += dx;
+      y1 += dy;
+      break;
+
+    case "end":
+      x2 += dx;
+      y2 += dy;
+      break;
+
+    case "middle":
+      x1 += dx;
+      y1 += dy;
+      x2 += dx;
+      y2 += dy;
+      break;
+  }
+
+  return {
+    ...el,
+    x: x1,
+    y: y1,
+    width: x2 - x1,
+    height: y2 - y1,
+  };
 }

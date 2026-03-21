@@ -41,9 +41,9 @@ export const ellipseShape: Shape = {
         const distance = dx * dx + dy * dy;
 
         if (Math.abs(distance - 1) < 0.1) {
-            return "border";
+            return { type: "border" };
         }
 
-        return "none";
+        return { type: "none" };
     }
 };

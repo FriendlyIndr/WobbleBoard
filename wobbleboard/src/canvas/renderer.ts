@@ -51,6 +51,11 @@ function drawSelection(ctx: CanvasRenderingContext2D, element: Element) {
 
     const PADDING = 6;
 
+    if (element.type === "arrow") {
+        drawArrowSelection(ctx, element);
+        return;
+    }
+
     const { x, y, width, height } = getElementBounds(element);
 
     ctx.strokeRect(
@@ -87,4 +92,20 @@ function drawHandle(ctx: CanvasRenderingContext2D, x: number, y: number) {
     ctx.rect(x - SIZE / 2, y - SIZE / 2, SIZE, SIZE);
     ctx.fill();
     ctx.stroke();
+}
+
+function drawArrowSelection(ctx: CanvasRenderingContext2D, element: Element) {
+    const x1 = element.x;
+    const y1 = element.y;
+
+    const x2 = element.x + element.width;
+    const y2 = element.y + element.height;
+
+    // Midpoint
+    const mx = (x1 + x2) / 2;
+    const my = (y1 + y2) / 2;
+
+    drawHandle(ctx, x1, y1);
+    drawHandle(ctx, mx, my);
+    drawHandle(ctx, x2, y2);
 }

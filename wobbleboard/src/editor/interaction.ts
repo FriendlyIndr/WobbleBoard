@@ -14,7 +14,7 @@ export type InteractionState =
     }
   | {
       type: "resizing";
-      handle: "tl" | "tr" | "br" | "bl";
+      handle: "tl" | "tr" | "br" | "bl" | "start" | "end" | "middle";
       startBounds: { x: number; y: number; width: number; height: number };
       cursorStart: { x: number; y: number };
     }

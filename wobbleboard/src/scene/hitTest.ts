@@ -6,7 +6,7 @@ export type HitType =
     | { type: "none" }
     | { type: "inside" }
     | { type: "border" }
-    | { type: "resize"; handle: "tl" | "tr" | "br" | "bl" };
+    | { type: "resize"; handle: "tl" | "tr" | "br" | "bl" | "start" | "middle" | "end" };
 
 export type HitResult = {
     type: HitType;
@@ -154,8 +154,8 @@ export function hitTest(
 
         const result = shape.hitTest(x, y, element);
 
-        if (result !== "none") {
-            return { type: { type: result }, element };
+        if (result.type !== "none") {
+            return { type: result, element };
         }
     }
 

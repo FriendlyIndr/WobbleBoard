@@ -25,9 +25,9 @@ export const diamondShape: Shape = {
 
     hitTest(x, y, element) {
         if (isPointOnDiamondBorder(x, y, element)) {
-            return "border";
+            return { type: "border" };
         }
 
-        return "none";
+        return { type: "none" };
     },
 };

@@ -108,26 +108,27 @@ export function useCanvasInteraction({
       if (tool === TOOLS.selection) {
         const hit = hitTest(x, y, elements, selectedIds);
   
-        if (hit.element) {
-          if (hit.type.type === "resize") {
-            const handle = hit.type.handle; // "tl", "tr", etc
+        if (hit.element && hit.type.type === "resize") {
+          const handle = hit.type.handle; // "tl", "tr", etc
 
-            if (handle) {
-              setInteraction({
-                type: "resizing",
-                handle,
-                cursorStart: {x, y},
-                startBounds: {
-                  x: hit.element.x,
-                  y: hit.element.y,
-                  width: hit.element.width,
-                  height: hit.element.height,
-                }
-              });
+          if (handle) {
+            setInteraction({
+              type: "resizing",
+              handle,
+              cursorStart: {x, y},
+              startBounds: {
+                x: hit.element.x,
+                y: hit.element.y,
+                width: hit.element.width,
+                height: hit.element.height,
+              }
+            });
 
-              return;
-            }
+            return;
           }
+        }
+
+        if (hit.element) {
 
           const id = hit.element.id;
   

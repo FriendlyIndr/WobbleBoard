@@ -36,9 +36,9 @@ export const rectangleShape: Shape = {
 
     hitTest(x, y, element) {
         if (isPointOnRectangleBorder(x, y, element)) {
-            return "border";
+            return { type: "border" };
         }
 
-        return "none";
+        return { type: "none" };
     }
 };

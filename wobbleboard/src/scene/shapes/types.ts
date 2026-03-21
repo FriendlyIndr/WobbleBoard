@@ -1,7 +1,6 @@
 import type { RoughCanvas } from "roughjs/bin/canvas";
 import type { Element } from "../elements";
-
-export type HitType = "none" | "inside" | "border";
+import type { HitType } from "../hitTest";
 
 export type Shape = {
     render: (

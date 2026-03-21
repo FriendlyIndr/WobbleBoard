@@ -26,13 +26,31 @@ export const arrowShape: Shape = {
         const x2 = element.x + element.width;
         const y2 = element.y + element.height;
 
+        const mx = (x1 + x2) / 2;
+        const my = (y1 + y2) / 2;
+
+        const HANDLE_SIZE = 8;
+
+        // Check handles
+        if (distance(x, y, x1, y1) < HANDLE_SIZE) {
+            return { type: "resize", handle: "start" };
+        }
+
+        if (distance(x, y, x2, y2) < HANDLE_SIZE) {
+            return { type: "resize", handle: "end" };
+        }
+
+        if (distance(x, y, mx, my) < HANDLE_SIZE) {
+            return { type: "resize", handle: "middle" };
+        }
+
         const dist = distanceToSegment(x, y, x1, y1, x2, y2);
 
         if (dist < 8) {
-            return "border";
+            return { type: "border" };
         }
 
-        return "none";
+        return { type: "none" };
     }
 };
 
@@ -60,4 +78,10 @@ function drawArrowhead(
     rc.line(x2, y2, rightX, rightY, {
         seed: seed,
     });
+}
+
+function distance(x1: number, y1: number, x2: number, y2: number) {
+    return (
+        Math.hypot(Math.abs(x1 - x2), Math.abs(y1 - y2))
+    )
 }

@@ -74,6 +74,8 @@ export function isPointOnDiamondBorder(
     y: number,
     element: Element
 ) {
+    if (!isBoxElement(element)) return;
+
     const cx = element.x + element.width / 2;
     const cy = element.y + element.height / 2;
 
@@ -92,6 +94,8 @@ export function isPointOnRectangleBorder(
     y: number,
     rect: Element
 ) {
+    if (!isBoxElement(rect)) return;
+
     const points = [
         { x: rect.x, y: rect.y },
         { x: rect.x + rect.width, y: rect.y },
@@ -117,6 +121,10 @@ export function isPointInsideRectangle(
     );
 }
 
+export function isBoxElement(el: Element) {
+    return el.type !== "arrow";
+}
+
 const HANDLE_SIZE = 6;
 
 function isNear(x: number, y: number, hx: number, hy: number) {
@@ -137,11 +145,11 @@ export function hitTest(
         const element = elements[i];
         const shape = SHAPES[element.type];
 
-        const { x: ex, y: ey, width, height } = element;
-
         const isSelected = selectedIds.has(element.id);
 
-        if (isSelected && element.type !== "arrow") {
+        if (isSelected && isBoxElement(element)) {
+            const { x: ex, y: ey, width, height } = element;
+
             if (isNear(x, y, ex, ey)) return { type: { type: "resize", handle: "tl" } , element };
             if (isNear(x, y, ex + width, ey)) return { type: { type: "resize", handle: "tr" } , element };
             if (isNear(x, y, ex + width, ey + height)) return { type: { type: "resize", handle: "br" } , element };

@@ -3,6 +3,8 @@ import type { Shape } from "./types";
 
 export const rectangleShape: Shape = {
     render(rc, _ctx, element) {
+        if (element.type !== "rectangle") return;
+
         const { x, y } = element;
 
         const width = Math.abs(element.width);

@@ -3,6 +3,8 @@ import type { Shape } from "./types";
 
 export const ellipseShape: Shape = {
     render(rc, _ctx, element) {
+        if (element.type !== "ellipse") return;
+
         const x = Math.min(element.x, element.x + element.width);
         const y = Math.min(element.y, element.y + element.height);
 

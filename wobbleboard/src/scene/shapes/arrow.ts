@@ -4,11 +4,9 @@ import type { Shape } from "./types";
 
 export const arrowShape: Shape = {
     render(rc, _ctx, element) {
-        const x1 = element.x;
-        const y1 = element.y;
+        if (element.type !== "arrow") return;
 
-        const x2 = element.x + element.width;
-        const y2 = element.y + element.height;
+        const { x1, y1, x2, y2 } = element;
 
         rc.line(x1, y1, x2, y2, {
             roughness: 1.5,
@@ -21,10 +19,11 @@ export const arrowShape: Shape = {
     },
 
     hitTest(x, y, element) {
-        const x1 = element.x;
-        const y1 = element.y;
-        const x2 = element.x + element.width;
-        const y2 = element.y + element.height;
+        if (element.type !== "arrow") {
+            return { type: "none" };
+        }
+
+        const { x1, y1, x2, y2 } = element;
 
         const mx = (x1 + x2) / 2;
         const my = (y1 + y2) / 2;

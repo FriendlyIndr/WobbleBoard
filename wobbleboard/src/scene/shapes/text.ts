@@ -3,6 +3,8 @@ import type { Shape } from "./types";
 
 export const textShape: Shape = {
     render(_rc, ctx, element) {
+        if (element.type !== "text") return;
+
         if (!element.text) return;
 
         const LINE_HEIGHT = 24;

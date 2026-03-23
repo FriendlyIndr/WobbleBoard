@@ -56,6 +56,27 @@ export function useCanvasInteraction({
   
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
+
+      if (tool.type === "arrow") {
+        const newArrow: Element = {
+          id: crypto.randomUUID(),
+          type: "arrow",
+          x1: x,
+          y1: y,
+          x2: x,
+          y2: y,
+          seed: Math.floor(Math.random() * 100000),
+        };
+
+        setElements((prev) => [...prev, newArrow]);
+
+        setInteraction({
+          type: "drawing",
+          start: { x, y },
+        });
+        
+        return;
+      }
   
       if (isShapeType(tool.type)) {
         setInteraction({
@@ -112,23 +133,38 @@ export function useCanvasInteraction({
           const handle = hit.type.handle; // "tl", "tr", etc
 
           if (handle) {
-            setInteraction({
-              type: "resizing",
-              handle,
-              cursorStart: {x, y},
-              startBounds: {
-                x: hit.element.x,
-                y: hit.element.y,
-                width: hit.element.width,
-                height: hit.element.height,
-              }
-            });
+            if (hit.element.type === "arrow") {
+              setInteraction({
+                type: "resizing",
+                handle,
+                cursorStart: {x, y},
+                startBounds: {
+                  x1: hit.element.x1,
+                  y1: hit.element.y1,
+                  x2: hit.element.x2,
+                  y2: hit.element.y2,
+                }
+              });
+            } else {
+              setInteraction({
+                type: "resizing",
+                handle,
+                cursorStart: {x, y},
+                startBounds: {
+                  x: hit.element.x,
+                  y: hit.element.y,
+                  width: hit.element.width,
+                  height: hit.element.height,
+                }
+              });
+            }
 
             return;
           }
         }
 
         if (hit.element) {
+          // Drag code
 
           const id = hit.element.id;
   
@@ -144,7 +180,11 @@ export function useCanvasInteraction({
   
           elements.forEach((el) => {
             if (nextSelected.has(el.id) || el.id === id) {
-              intitialPositions.set(el.id, { x: el.x, y: el.y });
+              if (el.type === "arrow") {
+                intitialPositions.set(el.id, { x: el.x1, y: el.y1 });
+              } else {
+                intitialPositions.set(el.id, { x: el.x, y: el.y });
+              }
             }
           });
   
@@ -154,6 +194,7 @@ export function useCanvasInteraction({
             intitialPositions,
           });
         } else {
+          // Marquee selection
           setSelectedIds(new Set());
   
           setInteraction({
@@ -186,11 +227,19 @@ export function useCanvasInteraction({
           const updated = [...elementsRef.current];
           const current = updated[updated.length - 1];
 
-          updated[updated.length - 1] = {
-            ...current,
-            width: x - start.x,
-            height: y - start.y,
-          };
+          if (current.type === "arrow") {
+            updated[updated.length - 1] = {
+              ...current,
+              x2: x,
+              y2: y,
+            };
+          } else {
+            updated[updated.length - 1] = {
+              ...current,
+              width: x - start.x,
+              height: y - start.y,
+            };
+          }
   
           elementsRef.current = updated;
   
@@ -262,6 +311,7 @@ export function useCanvasInteraction({
               return resizeArrow(el, interaction, dx, dy);
             }
 
+            if (!("x" in interaction.startBounds)) return el;
             let { x: ex, y: ey, width, height } = interaction.startBounds;
 
             switch (interaction.handle) {
@@ -420,6 +470,19 @@ function boxContainsElement(
   },
   element: Element,
 ) {
+  if (element.type === "arrow") {
+    const minX = Math.min(element.x1, element.x2);
+    const maxX = Math.max(element.x1, element.x2);
+    const minY = Math.min(element.y1, element.y2);
+    const maxY = Math.max(element.y1, element.y2);
+
+    return (
+      minX >= box.x &&
+      maxX <= box.x + box.width &&
+      minY >= box.y &&
+      maxY <= box.y + box.height
+    );
+  }
   return (
     element.x >= box.x &&
     element.x + element.width <= box.x + box.width &&
@@ -443,6 +506,7 @@ function finishTextEditing({
     prev.filter((el) => {
       if (el.id !== editingTextId) return true;
 
+      if (el.type !== "text") return;
       return el.text && el.text.trim().length > 0;
     })
   );
@@ -456,35 +520,39 @@ function resizeArrow(
   dx: number,
   dy: number
 ): Element {
-  let x1 = interaction.startBounds.x;
-  let y1 = interaction.startBounds.y;
-  let x2 = x1 + interaction.startBounds.width;
-  let y2 = y1 + interaction.startBounds.height;
+  if (el.type !== "arrow") return el;
+
+  const { x1, y1, x2, y2 } = interaction.startBounds;
+
+  let newX1 = x1;
+  let newY1 = y1;
+  let newX2 = x2;
+  let newY2 = y2;
 
   switch (interaction.handle) {
     case "start":
-      x1 += dx;
-      y1 += dy;
+      newX1 = x1 + dx;
+      newY1 = y1 + dy;
       break;
 
     case "end":
-      x2 += dx;
-      y2 += dy;
+      newX2 = x2 + dx;
+      newY2 = y2 + dy;
       break;
 
     case "middle":
-      x1 += dx;
-      y1 += dy;
-      x2 += dx;
-      y2 += dy;
+      newX1 = x1 + dx;
+      newY1 = y1 + dy;
+      newX2 = x2 + dx;
+      newY2 = y2 + dy;
       break;
   }
 
   return {
     ...el,
-    x: x1,
-    y: y1,
-    width: x2 - x1,
-    height: y2 - y1,
+    x1: newX1,
+    y1: newY1,
+    x2: newX2,
+    y2: newY2,
   };
 }

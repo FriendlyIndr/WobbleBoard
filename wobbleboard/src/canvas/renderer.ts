@@ -74,12 +74,26 @@ function drawSelection(ctx: CanvasRenderingContext2D, element: Element) {
 }
 
 function getElementBounds(element: Element) {
-    return {
-        x: element.x,
-        y: element.y,
-        width: element.width,
-        height: element.height,
-    };
+    if (element.type === "arrow") {
+        const minX = Math.min(element.x1, element.x2);
+        const minY = Math.min(element.y1, element.y2);
+        const maxX = Math.max(element.x1, element.x2);
+        const maxY = Math.min(element.y1, element.y2);
+
+        return {
+            x: minX,
+            y: minY,
+            width: maxX - minX,
+            height: maxY - minY
+        };
+    } else {
+        return {
+            x: element.x,
+            y: element.y,
+            width: element.width,
+            height: element.height,
+        };
+    }
 }
 
 function drawHandle(ctx: CanvasRenderingContext2D, x: number, y: number) {
@@ -94,12 +108,11 @@ function drawHandle(ctx: CanvasRenderingContext2D, x: number, y: number) {
     ctx.stroke();
 }
 
-function drawArrowSelection(ctx: CanvasRenderingContext2D, element: Element) {
-    const x1 = element.x;
-    const y1 = element.y;
-
-    const x2 = element.x + element.width;
-    const y2 = element.y + element.height;
+function drawArrowSelection(
+    ctx: CanvasRenderingContext2D,
+    element: Extract<Element, { type: "arrow" }>
+) {
+    const { x1, y1, x2, y2 } = element;
 
     // Midpoint
     const mx = (x1 + x2) / 2;

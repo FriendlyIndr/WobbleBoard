@@ -3,6 +3,8 @@ import type { Shape } from "./types";
 
 export const diamondShape: Shape = {
     render(rc, _ctx, element) {
+        if (element.type !== "diamond") return;
+
         const cx = element.x + element.width / 2;
         const cy = element.y + element.height / 2;
 

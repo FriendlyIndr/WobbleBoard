@@ -54,7 +54,9 @@ function Canvas() {
 
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
-  const editingTextElement = elements.find((e) => e.id === editingTextId);
+  const editingTextElement = elements.find(
+    (e): e is Extract<Element, { type: "text" }> => e.id === editingTextId,
+  );
 
   useCanvasRenderer({
     canvasRef,

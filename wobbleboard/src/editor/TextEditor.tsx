@@ -8,7 +8,7 @@ const TextEditor = ({
   editingTextId,
 }: {
   textareaRef: React.RefObject<HTMLTextAreaElement | null>;
-  editingTextElement: Element;
+  editingTextElement: Extract<Element, { type: "text" }>;
   setElements: React.Dispatch<React.SetStateAction<Element[]>>;
   editingTextId: string | null;
 }) => {
